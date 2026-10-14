@@ -46,6 +46,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/events").hasRole(ORGANISER)
                 .requestMatchers(HttpMethod.PATCH, "/api/events/*/status").hasRole(ORGANISER)
                 .requestMatchers("/organiser.html").hasRole(ORGANISER)
+                // organiser dashboard: indicators, drill-down, feedback search and follow-up workflow
+                .requestMatchers("/api/dashboard/**", "/dashboard.html").hasRole(ORGANISER)
+                .requestMatchers(HttpMethod.GET, "/api/feedback").hasRole(ORGANISER)
+                .requestMatchers(HttpMethod.PATCH, "/api/feedback/*/status").hasRole(ORGANISER)
                 .anyRequest().permitAll())
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())

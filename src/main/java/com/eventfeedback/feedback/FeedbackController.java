@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/events/{eventId}/feedback")
+@RequestMapping("/api/events/{eventId}")
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
@@ -25,7 +25,7 @@ public class FeedbackController {
         this.feedbackService = feedbackService;
     }
 
-    @PostMapping
+    @PostMapping("/feedback")
     @ResponseStatus(HttpStatus.CREATED)
     public FeedbackResponse submit(@PathVariable Long eventId, @Valid @RequestBody FeedbackRequest request,
                                    HttpServletRequest http) {
@@ -35,8 +35,14 @@ public class FeedbackController {
         return feedbackService.submit(eventId, request);
     }
 
-    @GetMapping
+    @GetMapping("/feedback")
     public List<FeedbackResponse> list(@PathVariable Long eventId) {
         return feedbackService.listForEvent(eventId);
+    }
+
+    /** Rating distribution and averages for the event page (status drill-down, T07). */
+    @GetMapping("/summary")
+    public EventFeedbackSummary summary(@PathVariable Long eventId) {
+        return feedbackService.summarize(eventId);
     }
 }

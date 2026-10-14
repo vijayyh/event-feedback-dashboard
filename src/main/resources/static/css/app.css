@@ -84,6 +84,8 @@ h2 { font-size: 1.15rem; margin: 0 0 12px; }
     padding: 20px;
 }
 .grid { display: grid; gap: 16px; }
+/* let wide content (tables) scroll inside its card instead of widening the page */
+.grid > * { min-width: 0; }
 .grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 .grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .stack > * + * { margin-top: 16px; }

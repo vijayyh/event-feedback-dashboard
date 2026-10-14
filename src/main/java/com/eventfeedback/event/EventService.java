@@ -1,5 +1,7 @@
 package com.eventfeedback.event;
 
+import static com.eventfeedback.common.Text.trimToNull;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -45,9 +47,9 @@ public class EventService {
     @Transactional
     public EventResponse createEvent(EventRequest request) {
         Event event = new Event(request.title().trim(), request.category(), request.eventDate());
-        event.setDescription(request.description());
-        event.setVenue(request.venue());
-        event.setOrganizer(request.organizer());
+        event.setDescription(trimToNull(request.description()));
+        event.setVenue(trimToNull(request.venue()));
+        event.setOrganizer(trimToNull(request.organizer()));
         event.setExpectedAttendees(request.expectedAttendees());
         if (request.status() != null) {
             event.setStatus(request.status());

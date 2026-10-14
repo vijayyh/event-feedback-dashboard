@@ -1,5 +1,7 @@
 package com.eventfeedback.feedback;
 
+import static com.eventfeedback.common.Text.trimToNull;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -30,9 +32,9 @@ public class FeedbackService {
         }
         Feedback entry = new Feedback(event, request.overallRating(), request.contentRating(),
                 request.organizationRating(), request.wouldRecommend());
-        entry.setComments(request.comments());
-        entry.setAttendeeName(request.attendeeName());
-        entry.setAttendeeEmail(request.attendeeEmail());
+        entry.setComments(trimToNull(request.comments()));
+        entry.setAttendeeName(trimToNull(request.attendeeName()));
+        entry.setAttendeeEmail(trimToNull(request.attendeeEmail()));
         return FeedbackResponse.from(feedback.save(entry));
     }
 

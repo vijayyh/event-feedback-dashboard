@@ -51,6 +51,16 @@ class FeedbackApiTest {
     }
 
     @Test
+    void blankCommentAndNameAreStoredAsNull() throws Exception {
+        long eventId = createEvent("COMPLETED");
+
+        submit(eventId, feedbackJson(4, 4, 4, true, "\"   \"", "\"  \"", "null"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.comments").doesNotExist())
+                .andExpect(jsonPath("$.attendeeName").doesNotExist());
+    }
+
+    @Test
     void ratingOutsideOneToFiveIsRejectedAndNothingIsStored() throws Exception {
         long eventId = createEvent("COMPLETED");
 

@@ -22,33 +22,30 @@ function currentUser() {
     return currentUser.promise;
 }
 
-async function renderHeader() {
-    const nav = document.getElementById('nav');
-    const actions = document.getElementById('topActions');
-    if (!nav) return;
-    const me = await currentUser();
-    const page = location.pathname.split('/').pop() || 'index.html';
+function drawNav(nav, page, organiser) {
     const links = [
         { href: 'index.html', label: 'Events', pages: ['index.html', 'event.html'] },
         // organisers do not give feedback, so the link is only for attendees
-        ...(me.organiser ? [] : [{ href: 'feedback.html', label: 'Give feedback', pages: ['feedback.html'] }]),
+        ...(organiser ? [] : [{ href: 'feedback.html', label: 'Give feedback', pages: ['feedback.html'] }]),
         { href: 'organiser.html', label: 'Organiser', pages: ['organiser.html', 'login.html'] },
         { href: 'about.html', label: 'About', pages: ['about.html'] }
     ];
     nav.innerHTML = links.map(l =>
         `<a href="${l.href}" class="${l.pages.includes(page) ? 'active' : ''}">${l.label}</a>`).join('');
+}
 
-    if (!actions) return;
-    actions.innerHTML = `
-        <span class="role-badge ${me.organiser ? 'organiser' : 'attendee'}">
-            ${me.organiser ? 'Organiser · signed in' : 'Attendee view'}</span>
-        ${me.organiser ? '<button class="btn small ghost" type="button" id="signOutBtn">Sign out</button>' : ''}
-        <button class="btn small ghost" type="button" id="themeBtn"></button>`;
+/** Role badge and sign-out appear once the role is known (me != null); the theme button is always there. */
+function drawActions(actions, me) {
+    const role = !me ? ''
+        : `<span class="role-badge ${me.organiser ? 'organiser' : 'attendee'}">
+               ${me.organiser ? 'Organiser · signed in' : 'Attendee view'}</span>
+           ${me.organiser ? '<button class="btn small ghost" type="button" id="signOutBtn">Sign out</button>' : ''}`;
+    actions.innerHTML = `${role}<button class="btn small ghost" type="button" id="themeBtn"></button>`;
 
     const themeBtn = document.getElementById('themeBtn');
     const label = () => {
         const dark = document.documentElement.dataset.theme === 'dark';
-        themeBtn.textContent = dark ? '☀ Light' : '☾ Dark';
+        themeBtn.textContent = dark ? '\u2600 Light' : '\u263E Dark';
         themeBtn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
     };
     label();
@@ -61,6 +58,19 @@ async function renderHeader() {
             location.href = 'index.html';
         });
     }
+}
+
+async function renderHeader() {
+    const nav = document.getElementById('nav');
+    const actions = document.getElementById('topActions');
+    if (!nav) return;
+    const page = location.pathname.split('/').pop() || 'index.html';
+    // draw the attendee menu straight away so the header is never empty, then adjust for the real role
+    drawNav(nav, page, false);
+    if (actions) drawActions(actions, null);
+    const me = await currentUser();
+    if (me.organiser) drawNav(nav, page, true);
+    if (actions) drawActions(actions, me);
 }
 
 /* ---------- HTTP ---------- */

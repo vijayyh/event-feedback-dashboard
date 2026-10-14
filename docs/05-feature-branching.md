@@ -171,7 +171,7 @@ clipped). It went through the bug workflow:
 
 | Deliverable | Evidence |
 |-------------|----------|
-| Working feature 1 | Section 1 screenshots; run `mvn spring-boot:run` → http://localhost:8090/events.html |
+| Working feature 1 | Section 1 screenshots; run `mvn spring-boot:run` → http://localhost:8090/ (pages were reorganised into attendee and organiser views by CR-01, [#20](https://github.com/vijayyh/event-feedback-dashboard/issues/20)) |
 | Feature branch | `feature/2-event-feedback-entry` (section 2, 3) |
 | Pull request | [PR #16](https://github.com/vijayyh/event-feedback-dashboard/pull/16) |
 | Review comments | Section 5 – 3 inline comments, replies, resolved threads |

@@ -1,10 +1,12 @@
-/* Feedback page: attendee picks an event, rates it and optionally comments. */
+/* Attendee feedback form. Organisers are shown a message instead of the form. */
 const form = document.getElementById('feedbackForm');
+const formCard = document.getElementById('formCard');
 const notice = document.getElementById('formNotice');
 const eventSelect = document.getElementById('eventId');
-const recent = document.getElementById('recent');
 const submitBtn = document.getElementById('submitBtn');
 const comments = document.getElementById('comments');
+const thanks = document.getElementById('thanks');
+const blocked = document.getElementById('blocked');
 
 /* Build the three 1-5 rating button groups. */
 document.querySelectorAll('.rating-group[data-field]').forEach(group => {
@@ -22,42 +24,25 @@ comments.addEventListener('input', () => {
     document.getElementById('commentCount').textContent = comments.value.length;
 });
 
-async function loadEvents() {
-    try {
-        const events = (await api('api/events')).filter(e => e.status !== 'CANCELLED');
-        const preselect = new URLSearchParams(location.search).get('eventId');
-        eventSelect.innerHTML = '<option value="">Select the event you attended…</option>' +
-            events.map(e => `<option value="${e.id}" ${String(e.id) === preselect ? 'selected' : ''}>
-                ${escapeHtml(e.title)} (${formatDate(e.eventDate)})</option>`).join('');
-        if (eventSelect.value) loadRecent(eventSelect.value);
-    } catch (err) {
-        eventSelect.innerHTML = '<option value="">Could not load events</option>';
-        showNotice(notice, 'error', err.message);
-    }
+function showBlocked(html) {
+    blocked.innerHTML = `<div class="card">${html}</div>`;
+    blocked.hidden = false;
 }
 
-async function loadRecent(eventId) {
-    if (!eventId) {
-        recent.innerHTML = '<li class="empty">Choose an event to see its feedback.</li>';
-        document.getElementById('recentFor').textContent = '';
-        return;
-    }
-    const items = await api(`api/events/${eventId}/feedback`);
-    document.getElementById('recentFor').textContent = `(${items.length})`;
-    recent.innerHTML = items.length === 0
-        ? '<li class="empty">No feedback yet – be the first!</li>'
-        : items.slice(0, 10).map(f => `
-            <li>
-                <span class="score">${f.overallRating} / 5</span>
-                · content ${f.contentRating} · organisation ${f.organizationRating}
-                · ${f.wouldRecommend ? 'recommends' : 'does not recommend'}
-                ${f.comments ? `<div>${escapeHtml(f.comments)}</div>` : ''}
-                <div class="feedback-meta">${escapeHtml(f.attendeeName || 'Anonymous')} ·
-                    ${new Date(f.submittedAt).toLocaleString()}</div>
-            </li>`).join('');
+function resetForm(keepEventId) {
+    form.reset();
+    eventSelect.value = keepEventId || '';
+    document.getElementById('commentCount').textContent = '0';
+    clearFieldErrors(form);
+    notice.hidden = true;
 }
 
-eventSelect.addEventListener('change', () => loadRecent(eventSelect.value));
+document.getElementById('anotherResponse').addEventListener('click', () => {
+    const eventId = eventSelect.value;
+    thanks.hidden = true;
+    resetForm(eventId);
+    formCard.hidden = false;
+});
 
 form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
@@ -82,12 +67,11 @@ form.addEventListener('submit', async (ev) => {
     submitBtn.disabled = true;
     try {
         await api(`api/events/${data.eventId}/feedback`, { method: 'POST', body: JSON.stringify(payload) });
-        showNotice(notice, 'success', 'Thank you! Your feedback has been recorded.');
-        // Clear the answers for the next attendee (shared device) but stay on the same event
-        form.reset();
-        eventSelect.value = data.eventId;
-        document.getElementById('commentCount').textContent = '0';
-        await loadRecent(data.eventId);
+        const title = eventSelect.selectedOptions[0].dataset.title;
+        document.getElementById('thanksText').textContent = `Your rating for "${title}" is now part of the event's results.`;
+        document.getElementById('seeFeedback').href = `event.html?id=${data.eventId}`;
+        formCard.hidden = true;
+        thanks.hidden = false;
     } catch (err) {
         showFieldErrors(form, err.body && err.body.fieldErrors);
         showNotice(notice, 'error', err.message);
@@ -96,4 +80,36 @@ form.addEventListener('submit', async (ev) => {
     }
 });
 
-loadEvents();
+(async () => {
+    try {
+        const [events, me] = await Promise.all([api('api/events'), currentUser()]);
+        if (me.organiser) {
+            showBlocked(`<h2>Organisers cannot give feedback</h2>
+                <p class="muted">You are signed in as the organiser. Feedback comes from attendees only, so that
+                ratings stay honest. Sign out to test the attendee view, or read the results on the
+                <a href="index.html">Events</a> page.</p>`);
+            return;
+        }
+        const open = events.filter(feedbackOpen);
+        const wanted = new URLSearchParams(location.search).get('eventId');
+        const requested = events.find(e => String(e.id) === wanted);
+        if (requested && !feedbackOpen(requested)) {
+            showBlocked(`<h2>${escapeHtml(requested.title)}</h2>
+                <p class="muted">${requested.status === 'UPCOMING'
+                    ? 'Feedback opens when the event starts. Please come back once it is underway.'
+                    : 'This event was cancelled, so it cannot be rated.'}</p>
+                <a href="event.html?id=${requested.id}">View the event</a>`);
+            return;
+        }
+        if (open.length === 0) {
+            showBlocked('<p class="muted">No events are open for feedback right now.</p>');
+            return;
+        }
+        eventSelect.innerHTML = '<option value="">Select the event you attended…</option>' +
+            open.map(e => `<option value="${e.id}" data-title="${escapeHtml(e.title)}"
+                ${String(e.id) === wanted ? 'selected' : ''}>${escapeHtml(e.title)} (${formatDate(e.eventDate)})</option>`).join('');
+        formCard.hidden = false;
+    } catch (err) {
+        showBlocked(`<p class="notice error">Could not load events: ${escapeHtml(err.message)}</p>`);
+    }
+})();

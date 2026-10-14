@@ -56,4 +56,11 @@ public class EventService {
         }
         return EventResponse.from(events.save(event), null);
     }
+
+    @Transactional
+    public EventResponse changeStatus(Long id, EventStatus status) {
+        Event event = findEvent(id);
+        event.setStatus(status);
+        return EventResponse.from(event, feedback.statsForEvent(id).orElse(null));
+    }
 }

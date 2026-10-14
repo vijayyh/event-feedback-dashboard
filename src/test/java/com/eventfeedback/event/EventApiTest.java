@@ -2,6 +2,8 @@ package com.eventfeedback.event;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -23,12 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class EventApiTest {
 
+    private static final RequestPostProcessor ORGANISER = user("organiser").roles("ORGANISER");
+
     @Autowired
     private MockMvc mockMvc;
 
     @Test
     void createdEventIsReturnedWith201AndAppearsInList() throws Exception {
-        mockMvc.perform(post("/api/events")
+        mockMvc.perform(post("/api/events").with(ORGANISER).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"title": "  DevOps Bootcamp ", "category": "WORKSHOP", "eventDate": "2026-10-20",
@@ -48,7 +53,7 @@ class EventApiTest {
 
     @Test
     void eventWithoutTitleOrDateIsRejectedWithFieldErrors() throws Exception {
-        mockMvc.perform(post("/api/events")
+        mockMvc.perform(post("/api/events").with(ORGANISER).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"title": " ", "category": "SEMINAR"}"""))
@@ -60,7 +65,7 @@ class EventApiTest {
 
     @Test
     void unknownCategoryIsRejectedAsMalformed() throws Exception {
-        mockMvc.perform(post("/api/events")
+        mockMvc.perform(post("/api/events").with(ORGANISER).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"title": "X", "category": "PARTY", "eventDate": "2026-10-20"}"""))

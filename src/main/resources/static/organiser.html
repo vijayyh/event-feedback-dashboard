@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Events · Event Feedback Dashboard</title>
+    <title>Organiser · Event Feedback Dashboard</title>
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -11,16 +12,18 @@
     <div class="topbar-inner">
         <a class="brand" href="index.html">Event <span>Feedback</span> Dashboard</a>
         <nav class="nav" id="nav"></nav>
+        <div class="top-actions" id="topActions"></div>
     </div>
 </header>
 
 <main>
-    <h1>Events</h1>
-    <p class="subtitle">Register an event, then share the feedback link with attendees.</p>
+    <h1>Organiser</h1>
+    <p class="subtitle">Create events and move them through Upcoming → Ongoing → Completed.
+        Feedback opens for attendees once an event is ongoing.</p>
 
-    <div class="grid grid-events">
+    <div class="grid grid-side">
         <section class="card">
-            <h2>Register an event</h2>
+            <h2>Create an event</h2>
             <div id="formNotice" hidden></div>
             <form id="eventForm" novalidate>
                 <div class="form-grid">
@@ -55,7 +58,7 @@
                         <small class="field-error" data-for="venue"></small>
                     </div>
                     <div>
-                        <label for="organizer">Organiser <span class="opt">(optional)</span></label>
+                        <label for="organizer">Organised by <span class="opt">(optional)</span></label>
                         <input id="organizer" name="organizer" maxlength="100" placeholder="e.g. CSE Department">
                         <small class="field-error" data-for="organizer"></small>
                     </div>
@@ -87,21 +90,22 @@
         </section>
 
         <section class="card">
-            <h2>All events <span class="hint" id="eventCount"></span></h2>
+            <h2>Manage events</h2>
+            <div id="manageNotice" hidden></div>
+            <div class="tabs" id="statusTabs" role="group" aria-label="Filter events by status"></div>
             <div class="table-wrap">
                 <table>
                     <thead>
                     <tr>
                         <th>Event</th>
-                        <th>Date</th>
                         <th>Status</th>
                         <th class="num">Responses</th>
-                        <th class="num">Avg rating</th>
+                        <th class="num">Avg</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody id="eventRows">
-                    <tr><td colspan="6" class="empty">Loading…</td></tr>
+                    <tr><td colspan="5" class="empty">Loading…</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -112,6 +116,6 @@
 <footer>Event Feedback Dashboard · DevOps course project</footer>
 
 <script src="js/common.js"></script>
-<script src="js/events.js"></script>
+<script src="js/organiser.js"></script>
 </body>
 </html>

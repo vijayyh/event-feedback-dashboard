@@ -1,0 +1,4 @@
+# Copy this file to application-local.properties (git-ignored) and choose your own password.
+# Sign in on /login.html with user "organiser" and this password.
+# Instead of plain text you can store a bcrypt hash, e.g. spring.security.user.password={bcrypt}$2a$10$...
+spring.security.user.password=change-me

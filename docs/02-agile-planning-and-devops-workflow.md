@@ -122,7 +122,17 @@ Priority uses **MoSCoW**; size in **story points** (Fibonacci).
 | 15 | T15 | US-14 | Release v1.0 | Must | 2 | 5 |
 | | | | **Total** | | **56** | |
 
-**Icebox (after MVP):** login & roles · e-mail notification of HIGH alerts · QR code per event ·
+**Change requests accepted after the scope freeze**
+
+| Rank | Item | Story | Title | Priority | Points | Sprint |
+|-----:|------|-------|-------|----------|-------:|:------:|
+| 3a | CR-01 ([#20](https://github.com/vijayyh/event-feedback-dashboard/issues/20)) | US-15 | Organiser/attendee roles, status tabs, event feedback page, light theme | Must | 8 | 1 |
+
+> **US-15** – *As an attendee, I want to browse events and read their ratings and feedback without being able to
+> create events, and as an organiser, I want a signed-in area to create events and manage their status, so that
+> the two roles are not confused.* Acceptance criteria are listed in issue #20.
+
+**Icebox (after MVP):** multiple organiser accounts · e-mail notification of HIGH alerts · QR code per event ·
 CSV/PDF export · MySQL profile for production · Docker image.
 
 ---

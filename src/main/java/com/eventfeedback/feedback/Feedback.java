@@ -58,6 +58,9 @@ public class Feedback {
     @Column(nullable = false, updatable = false)
     private Instant submittedAt;
 
+    /** When an organiser last changed {@link #status}; null while the feedback is still NEW. */
+    private Instant statusChangedAt;
+
     protected Feedback() {
         // for JPA
     }
@@ -94,7 +97,13 @@ public class Feedback {
     public void setAttendeeEmail(String attendeeEmail) { this.attendeeEmail = attendeeEmail; }
 
     public FeedbackStatus getStatus() { return status; }
-    public void setStatus(FeedbackStatus status) { this.status = status; }
+
+    /** Records the new follow-up status and when it was set. */
+    public void changeStatus(FeedbackStatus newStatus) {
+        this.status = newStatus;
+        this.statusChangedAt = Instant.now();
+    }
 
     public Instant getSubmittedAt() { return submittedAt; }
+    public Instant getStatusChangedAt() { return statusChangedAt; }
 }

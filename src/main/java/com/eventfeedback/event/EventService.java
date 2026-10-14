@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +26,13 @@ public class EventService {
         this.feedback = feedback;
     }
 
-    public List<EventResponse> listEvents() {
+    private static final Sort NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "eventDate", "id");
+
+    /** Events matching the filter (newest first), each with its response count and average rating. */
+    public List<EventResponse> listEvents(EventFilter filter) {
         Map<Long, EventStats> stats = feedback.statsPerEvent().stream()
                 .collect(Collectors.toMap(EventStats::eventId, Function.identity()));
-        return events.findAllByOrderByEventDateDescIdDesc().stream()
+        return events.findAll(filter.toSpecification(), NEWEST_FIRST).stream()
                 .map(e -> EventResponse.from(e, stats.get(e.getId())))
                 .toList();
     }

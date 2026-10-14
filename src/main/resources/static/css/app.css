@@ -255,6 +255,42 @@ td select { width: auto; padding: 5px 8px; font-size: .85rem; }
 .num { text-align: right; white-space: nowrap; }
 .nowrap { white-space: nowrap; }
 
+/* ---------- search toolbar ---------- */
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 14px; }
+.toolbar input[type="search"] { flex: 1 1 240px; }
+.toolbar select { flex: 0 1 auto; width: auto; }
+
+/* ---------- dashboard ---------- */
+.kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.kpi { display: block; padding: 16px 18px; color: var(--text); }
+a.kpi:hover { text-decoration: none; border-color: var(--primary); }
+.kpi-value { font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
+.kpi-label { color: var(--muted); font-weight: 600; font-size: .85rem; margin-top: 4px; }
+.kpi-note { color: var(--muted); font-size: .8rem; margin-top: 2px; }
+.kpi.alert-kpi .kpi-value { color: var(--danger); }
+.breakdown { display: grid; gap: 6px; }
+.breakdown-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 40px;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.breakdown-row:hover { background: var(--bg); border-color: var(--border); }
+.breakdown-row .chip { justify-self: start; }
+.chip.fb-NEW { background: var(--primary-soft); color: var(--primary-dark); }
+.chip.fb-REVIEWED { background: var(--neutral-soft); color: var(--muted); }
+.chip.fb-ACTION_REQUIRED { background: var(--warning-soft); color: var(--warning); }
+.chip.fb-RESOLVED { background: var(--success-soft); color: var(--success); }
+
 /* ---------- alerts ---------- */
 .nav-badge {
     display: inline-block;

@@ -59,6 +59,7 @@ Spring Boot prints a random password in the log at startup.
 | `event.html?id=<id>` | everyone | Event details, rating summary (average, % recommend, 5★–1★ distribution) and all feedback |
 | `feedback.html?eventId=<id>` | attendees | Feedback form (1–5 ratings, recommend, comment, optional name/e-mail) |
 | `organiser.html` | organiser | Create events and manage their status (redirects to `login.html` when signed out) |
+| `dashboard.html` | organiser | KPI cards (auto-refresh), events/feedback by status with drill-down, feedback search and follow-up workflow |
 | `alerts.html` | organiser | Alert/exception view: open, acknowledged and resolved alerts with severity filter |
 | `about.html` | everyone | Roles, system health/version and MVP modules |
 | `/api/info`, `/actuator/health` | everyone | Application info and health check (JSON) |
@@ -76,11 +77,16 @@ On first start an empty database is filled with 5 sample events and 9 feedback e
 
 | Method | Endpoint | Who | Description |
 |--------|----------|-----|-------------|
-| GET | `/api/events` | everyone | List events (newest first) with `responseCount` and `averageRating` |
+| GET | `/api/events?q=&status=&category=&from=&to=` | everyone | List/search events (newest first) with `responseCount` and `averageRating` |
 | GET | `/api/events/{id}` | everyone | One event with statistics, `404` if unknown |
 | POST | `/api/events` | organiser | Create an event – `title`, `category`, `eventDate` required → `201 Created` |
 | PATCH | `/api/events/{id}/status` | organiser | Change status, body `{"status":"ONGOING"}` |
 | GET | `/api/events/{id}/feedback` | everyone | Feedback for an event, newest first (e-mail never returned) |
+| GET | `/api/events/{id}/summary` | everyone | Rating distribution, averages and % recommend for one event |
+| GET | `/api/feedback?q=&eventId=&status=&minRating=&maxRating=` | organiser | Search feedback across events |
+| PATCH | `/api/feedback/{id}/status` | organiser | Follow-up: `NEW` → `REVIEWED` / `ACTION_REQUIRED` → `RESOLVED` (final) |
+| GET | `/api/dashboard/summary` | organiser | Events, responses, average rating, satisfaction %, recommend % |
+| GET | `/api/dashboard/status-breakdown` | organiser | Counts per event status and per feedback status |
 | GET | `/api/alerts?status=&severity=` | organiser | Alerts, newest first (`LOW_RATING`, `NEGATIVE_COMMENT`, `LOW_AVERAGE`) |
 | GET | `/api/alerts/count` | organiser | `{"unresolved": n}` for the navigation badge |
 | PATCH | `/api/alerts/{id}` | organiser | `{"status":"ACKNOWLEDGED"}` or `RESOLVED` (never reopened) |

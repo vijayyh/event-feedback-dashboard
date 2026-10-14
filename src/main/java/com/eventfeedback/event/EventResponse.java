@@ -1,5 +1,7 @@
 package com.eventfeedback.event;
 
+import static com.eventfeedback.common.Numbers.round2;
+
 import java.time.Instant;
 import java.time.LocalDate;
 
@@ -20,9 +22,7 @@ public record EventResponse(
 
     public static EventResponse from(Event e, EventStats stats) {
         long count = stats != null ? stats.responseCount() : 0;
-        Double average = stats != null && stats.averageRating() != null
-                ? Math.round(stats.averageRating() * 100) / 100.0
-                : null;
+        Double average = stats != null ? round2(stats.averageRating()) : null;
         return new EventResponse(e.getId(), e.getTitle(), e.getDescription(), e.getCategory(),
                 e.getVenue(), e.getOrganizer(), e.getEventDate(), e.getExpectedAttendees(),
                 e.getStatus(), e.getCreatedAt(), count, average);

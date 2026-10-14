@@ -17,7 +17,7 @@ is mostly manual.
 ### Current process ("as-is")
 
 ```mermaid
-flowchart LR
+flowchart TB
     A[Event ends] --> B[Paper forms / generic Google Form shared]
     B --> C[Responses scattered across sheets, WhatsApp, paper]
     C --> D[Coordinator copies data into Excel manually]

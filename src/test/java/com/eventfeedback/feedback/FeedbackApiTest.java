@@ -1,6 +1,8 @@
 package com.eventfeedback.feedback;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,8 @@ import com.jayway.jsonpath.JsonPath;
 @ActiveProfiles("test")
 @Transactional
 class FeedbackApiTest {
+
+    private static final RequestPostProcessor ORGANISER = user("organiser").roles("ORGANISER");
 
     @Autowired
     private MockMvc mockMvc;
@@ -126,7 +131,7 @@ class FeedbackApiTest {
     }
 
     private long createEvent(String status) throws Exception {
-        String body = mockMvc.perform(post("/api/events")
+        String body = mockMvc.perform(post("/api/events").with(ORGANISER).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"title": "Test event", "category": "SEMINAR", "eventDate": "2026-10-10", "status": "%s"}"""
@@ -137,7 +142,7 @@ class FeedbackApiTest {
     }
 
     private ResultActions submit(long eventId, String json) throws Exception {
-        return mockMvc.perform(post("/api/events/{id}/feedback", eventId)
+        return mockMvc.perform(post("/api/events/{id}/feedback", eventId).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
     }

@@ -1,30 +1,39 @@
 package com.eventfeedback.event;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.eventfeedback.common.ResourceNotFoundException;
+import com.eventfeedback.feedback.FeedbackRepository;
 
 @Service
 @Transactional(readOnly = true)
 public class EventService {
 
     private final EventRepository events;
+    private final FeedbackRepository feedback;
 
-    public EventService(EventRepository events) {
+    public EventService(EventRepository events, FeedbackRepository feedback) {
         this.events = events;
+        this.feedback = feedback;
     }
 
     public List<EventResponse> listEvents() {
+        Map<Long, EventStats> stats = feedback.statsPerEvent().stream()
+                .collect(Collectors.toMap(EventStats::eventId, Function.identity()));
         return events.findAllByOrderByEventDateDescIdDesc().stream()
-                .map(e -> EventResponse.from(e, null))
+                .map(e -> EventResponse.from(e, stats.get(e.getId())))
                 .toList();
     }
 
     public EventResponse getEvent(Long id) {
-        return EventResponse.from(findEvent(id), null);
+        Event event = findEvent(id);
+        return EventResponse.from(event, feedback.statsForEvent(id).orElse(null));
     }
 
     /** Loads the entity or fails with 404; shared with other services. */

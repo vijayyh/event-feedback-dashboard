@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Give Feedback · Event Feedback Dashboard</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="index.html">Event <span>Feedback</span> Dashboard</a>
+        <nav class="nav" id="nav"></nav>
+    </div>
+</header>
+
+<main>
+    <h1>Give feedback</h1>
+    <p class="subtitle">Takes less than a minute. Name and e-mail are optional.</p>
+
+    <div class="grid grid-2">
+        <section class="card">
+            <div id="formNotice" hidden></div>
+            <form id="feedbackForm" novalidate>
+                <div class="stack">
+                    <div>
+                        <label for="eventId">Event</label>
+                        <select id="eventId" name="eventId" required>
+                            <option value="">Loading events…</option>
+                        </select>
+                        <small class="field-error" data-for="eventId"></small>
+                    </div>
+
+                    <fieldset class="rating-group" data-field="overallRating">
+                        <legend>Overall experience</legend>
+                    </fieldset>
+                    <fieldset class="rating-group" data-field="contentRating">
+                        <legend>Content / speakers</legend>
+                    </fieldset>
+                    <fieldset class="rating-group" data-field="organizationRating">
+                        <legend>Organisation and venue</legend>
+                    </fieldset>
+
+                    <fieldset class="rating-group">
+                        <legend>Would you recommend this event to a friend?</legend>
+                        <div class="rating-options">
+                            <input type="radio" id="rec-yes" name="wouldRecommend" value="true">
+                            <label for="rec-yes" style="min-width:64px">Yes</label>
+                            <input type="radio" id="rec-no" name="wouldRecommend" value="false">
+                            <label for="rec-no" style="min-width:64px">No</label>
+                        </div>
+                        <small class="field-error" data-for="wouldRecommend"></small>
+                    </fieldset>
+
+                    <div>
+                        <label for="comments">Comments <span class="opt">(optional)</span></label>
+                        <textarea id="comments" name="comments" maxlength="1000"
+                                  placeholder="What went well? What should we improve?"></textarea>
+                        <span class="hint"><span id="commentCount">0</span> / 1000</span>
+                        <small class="field-error" data-for="comments"></small>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="attendeeName">Name <span class="opt">(optional)</span></label>
+                            <input id="attendeeName" name="attendeeName" maxlength="100">
+                            <small class="field-error" data-for="attendeeName"></small>
+                        </div>
+                        <div>
+                            <label for="attendeeEmail">E-mail <span class="opt">(optional)</span></label>
+                            <input id="attendeeEmail" name="attendeeEmail" type="email" maxlength="150">
+                            <small class="field-error" data-for="attendeeEmail"></small>
+                        </div>
+                    </div>
+
+                    <button class="btn" type="submit" id="submitBtn">Submit feedback</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Recent feedback <span class="hint" id="recentFor"></span></h2>
+            <ul class="feedback-list" id="recent">
+                <li class="empty">Choose an event to see its feedback.</li>
+            </ul>
+        </section>
+    </div>
+</main>
+
+<footer>Event Feedback Dashboard · DevOps course project</footer>
+
+<script src="js/common.js"></script>
+<script src="js/feedback.js"></script>
+</body>
+</html>

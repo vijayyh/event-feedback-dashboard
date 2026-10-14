@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Events · Event Feedback Dashboard</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="index.html">Event <span>Feedback</span> Dashboard</a>
+        <nav class="nav" id="nav"></nav>
+    </div>
+</header>
+
+<main>
+    <h1>Events</h1>
+    <p class="subtitle">Register an event, then share the feedback link with attendees.</p>
+
+    <div class="grid grid-2">
+        <section class="card">
+            <h2>Register an event</h2>
+            <div id="formNotice" hidden></div>
+            <form id="eventForm" novalidate>
+                <div class="form-grid">
+                    <div class="full">
+                        <label for="title">Title</label>
+                        <input id="title" name="title" maxlength="150" required
+                               placeholder="e.g. Workshop on Jenkins CI/CD">
+                        <small class="field-error" data-for="title"></small>
+                    </div>
+                    <div>
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select…</option>
+                            <option value="WORKSHOP">Workshop</option>
+                            <option value="SEMINAR">Seminar / guest lecture</option>
+                            <option value="WEBINAR">Webinar</option>
+                            <option value="HACKATHON">Hackathon</option>
+                            <option value="CULTURAL">Cultural</option>
+                            <option value="SPORTS">Sports</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                        <small class="field-error" data-for="category"></small>
+                    </div>
+                    <div>
+                        <label for="eventDate">Date</label>
+                        <input id="eventDate" name="eventDate" type="date" required>
+                        <small class="field-error" data-for="eventDate"></small>
+                    </div>
+                    <div>
+                        <label for="venue">Venue <span class="opt">(optional)</span></label>
+                        <input id="venue" name="venue" maxlength="150" placeholder="e.g. Seminar Hall A">
+                        <small class="field-error" data-for="venue"></small>
+                    </div>
+                    <div>
+                        <label for="organizer">Organiser <span class="opt">(optional)</span></label>
+                        <input id="organizer" name="organizer" maxlength="100" placeholder="e.g. CSE Department">
+                        <small class="field-error" data-for="organizer"></small>
+                    </div>
+                    <div>
+                        <label for="expectedAttendees">Expected attendees <span class="opt">(optional)</span></label>
+                        <input id="expectedAttendees" name="expectedAttendees" type="number" min="0" step="1">
+                        <small class="field-error" data-for="expectedAttendees"></small>
+                    </div>
+                    <div>
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            <option value="UPCOMING">Upcoming</option>
+                            <option value="ONGOING">Ongoing</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                        <small class="field-error" data-for="status"></small>
+                    </div>
+                    <div class="full">
+                        <label for="description">Description <span class="opt">(optional)</span></label>
+                        <textarea id="description" name="description" maxlength="1000"></textarea>
+                        <small class="field-error" data-for="description"></small>
+                    </div>
+                    <div class="full">
+                        <button class="btn" type="submit" id="saveBtn">Save event</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>All events <span class="hint" id="eventCount"></span></h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th class="num">Responses</th>
+                        <th class="num">Avg rating</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="eventRows">
+                    <tr><td colspan="6" class="empty">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer>Event Feedback Dashboard · DevOps course project</footer>
+
+<script src="js/common.js"></script>
+<script src="js/events.js"></script>
+</body>
+</html>

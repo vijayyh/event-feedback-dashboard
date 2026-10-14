@@ -9,6 +9,7 @@ const CATEGORY_LABELS = {
 };
 const STATUS_LABELS = { UPCOMING: 'Upcoming', ONGOING: 'Ongoing', COMPLETED: 'Completed', CANCELLED: 'Cancelled' };
 const STATUS_TABS = ['ALL', 'UPCOMING', 'ONGOING', 'COMPLETED'];
+const FEEDBACK_STATUS_LABELS = { NEW: 'New', REVIEWED: 'Reviewed', ACTION_REQUIRED: 'Action required', RESOLVED: 'Resolved' };
 
 /* ---------- who is using the page ---------- */
 
@@ -27,6 +28,7 @@ function drawNav(nav, page, organiser) {
         { href: 'index.html', label: 'Events', pages: ['index.html', 'event.html'] },
         // organisers do not give feedback, so the link is only for attendees
         ...(organiser ? [] : [{ href: 'feedback.html', label: 'Give feedback', pages: ['feedback.html'] }]),
+        ...(organiser ? [{ href: 'dashboard.html', label: 'Dashboard', pages: ['dashboard.html'] }] : []),
         { href: 'organiser.html', label: 'Organiser', pages: ['organiser.html', 'login.html'] },
         { href: 'about.html', label: 'About', pages: ['about.html'] }
     ];

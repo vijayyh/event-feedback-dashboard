@@ -20,6 +20,20 @@
     <h1>Events</h1>
     <p class="subtitle">See how every event was rated, read what attendees said, and share your own feedback.</p>
 
+    <div class="toolbar">
+        <input type="search" id="search" placeholder="Search events by name, venue or organiser…"
+               aria-label="Search events">
+        <select id="category" aria-label="Filter by category">
+            <option value="">All categories</option>
+            <option value="WORKSHOP">Workshop</option>
+            <option value="SEMINAR">Seminar</option>
+            <option value="WEBINAR">Webinar</option>
+            <option value="HACKATHON">Hackathon</option>
+            <option value="CULTURAL">Cultural</option>
+            <option value="SPORTS">Sports</option>
+            <option value="OTHER">Other</option>
+        </select>
+    </div>
     <div class="tabs" id="statusTabs" role="group" aria-label="Filter events by status"></div>
     <div class="grid grid-3" id="eventCards">
         <p class="empty">Loading events…</p>

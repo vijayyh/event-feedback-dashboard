@@ -24,7 +24,8 @@ function render() {
     });
     const shown = activeStatus === 'ALL' ? allEvents : allEvents.filter(e => e.status === activeStatus);
     if (shown.length === 0) {
-        cards.innerHTML = `<p class="empty">No ${activeStatus === 'ALL' ? '' : STATUS_LABELS[activeStatus].toLowerCase() + ' '}events.</p>`;
+        const filtered = searchBox.value.trim() || categorySelect.value;
+        cards.innerHTML = `<p class="empty">No ${activeStatus === 'ALL' ? '' : STATUS_LABELS[activeStatus].toLowerCase() + ' '}events${filtered ? ' match your search' : ''}.</p>`;
         return;
     }
     cards.innerHTML = shown.map(e => `
@@ -40,14 +41,36 @@ function render() {
         </article>`).join('');
 }
 
-(async () => {
+const searchBox = document.getElementById('search');
+const categorySelect = document.getElementById('category');
+
+let latestRequest = 0;
+
+/** Keyword and category go to the server (GET /api/events?q=&category=); the status tabs filter the result. */
+async function loadEvents() {
+    const request = ++latestRequest;
+    const params = new URLSearchParams();
+    if (searchBox.value.trim()) params.set('q', searchBox.value.trim());
+    if (categorySelect.value) params.set('category', categorySelect.value);
     try {
-        const [events, me] = await Promise.all([api('api/events'), currentUser()]);
+        const events = await api('api/events' + (params.toString() ? '?' + params : ''));
+        if (request !== latestRequest) return; // a newer search has been sent meanwhile
         allEvents = events;
-        isOrganiser = me.organiser;
-        if (!STATUS_TABS.includes(activeStatus)) activeStatus = 'ALL';
         render();
     } catch (err) {
         cards.innerHTML = `<p class="empty">Could not load events: ${escapeHtml(err.message)}</p>`;
     }
+}
+
+let searchTimer;
+searchBox.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(loadEvents, 250);
+});
+categorySelect.addEventListener('change', loadEvents);
+
+(async () => {
+    isOrganiser = (await currentUser()).organiser;
+    if (!STATUS_TABS.includes(activeStatus)) activeStatus = 'ALL';
+    await loadEvents();
 })();

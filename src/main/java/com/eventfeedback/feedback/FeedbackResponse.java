@@ -14,11 +14,12 @@ public record FeedbackResponse(
         String comments,
         String attendeeName,
         FeedbackStatus status,
-        Instant submittedAt) {
+        Instant submittedAt,
+        Instant statusChangedAt) {
 
     public static FeedbackResponse from(Feedback f) {
         return new FeedbackResponse(f.getId(), f.getEvent().getId(), f.getEvent().getTitle(),
                 f.getOverallRating(), f.getContentRating(), f.getOrganizationRating(), f.isWouldRecommend(),
-                f.getComments(), f.getAttendeeName(), f.getStatus(), f.getSubmittedAt());
+                f.getComments(), f.getAttendeeName(), f.getStatus(), f.getSubmittedAt(), f.getStatusChangedAt());
     }
 }

@@ -6,7 +6,7 @@ function average(items, field) {
     return items.reduce((sum, f) => sum + f[field], 0) / items.length;
 }
 
-function renderHeader(e, organiser) {
+function renderEventHeader(e, organiser) {
     const action = organiser
         ? '<span class="muted">Organisers can read feedback but cannot submit it.</span>'
         : feedbackOpen(e)
@@ -85,7 +85,7 @@ function renderFeedback(items) {
         const [event, feedback, me] = await Promise.all([
             api(`api/events/${eventId}`), api(`api/events/${eventId}/feedback`), currentUser()]);
         document.title = `${event.title} · Event Feedback Dashboard`;
-        renderHeader(event, me.organiser);
+        renderEventHeader(event, me.organiser);
         renderSummary(feedback);
         renderFeedback(feedback);
         document.getElementById('eventBody').hidden = false;

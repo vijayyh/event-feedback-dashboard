@@ -2,6 +2,24 @@
 const eventId = new URLSearchParams(location.search).get('id');
 const header = document.getElementById('eventHeader');
 
+function renderEventHeader(e, organiser) {
+    const action = organiser
+        ? '<span class="muted">Organisers can read feedback but cannot submit it.</span>'
+        : feedbackOpen(e)
+            ? `<a class="btn" href="feedback.html?eventId=${e.id}">Give feedback</a>`
+            : `<span class="muted">${e.status === 'UPCOMING' ? 'Feedback opens when the event starts.' : 'This event was cancelled.'}</span>`;
+    header.innerHTML = `
+        <div class="card stack" style="margin-bottom:16px">
+            <div>
+                ${statusChip(e.status)}
+                <h1 style="margin-top:8px">${escapeHtml(e.title)}</h1>
+                <div class="muted">${eventMeta(e)}</div>
+            </div>
+            ${e.description ? `<p style="margin:0">${escapeHtml(e.description)}</p>` : ''}
+            <div>${action}</div>
+        </div>`;
+}
+
 /** Uses GET /api/events/{id}/summary (distribution and averages are computed on the server). */
 function renderSummary(sum) {
     const summary = document.getElementById('summary');

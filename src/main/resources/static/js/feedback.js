@@ -83,6 +83,10 @@ form.addEventListener('submit', async (ev) => {
     try {
         await api(`api/events/${data.eventId}/feedback`, { method: 'POST', body: JSON.stringify(payload) });
         showNotice(notice, 'success', 'Thank you! Your feedback has been recorded.');
+        // Clear the answers for the next attendee (shared device) but stay on the same event
+        form.reset();
+        eventSelect.value = data.eventId;
+        document.getElementById('commentCount').textContent = '0';
         await loadRecent(data.eventId);
     } catch (err) {
         showFieldErrors(form, err.body && err.body.fieldErrors);

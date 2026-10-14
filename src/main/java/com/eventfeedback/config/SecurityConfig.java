@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/events").hasRole(ORGANISER)
                 .requestMatchers(HttpMethod.PATCH, "/api/events/*/status").hasRole(ORGANISER)
                 .requestMatchers("/organiser.html").hasRole(ORGANISER)
+                // alert/exception view
+                .requestMatchers("/api/alerts/**", "/alerts.html").hasRole(ORGANISER)
                 .anyRequest().permitAll())
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())

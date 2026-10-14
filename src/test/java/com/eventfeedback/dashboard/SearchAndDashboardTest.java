@@ -86,7 +86,9 @@ class SearchAndDashboardTest extends ApiTestSupport {
                 .andExpect(jsonPath("$.totalResponses").value(4))
                 .andExpect(jsonPath("$.averageRating").value(3.5))      // (5+4+2+3)/4
                 .andExpect(jsonPath("$.satisfactionPercent").value(50))  // 5 and 4 out of 4
-                .andExpect(jsonPath("$.recommendPercent").value(75));    // 3 of 4
+                .andExpect(jsonPath("$.recommendPercent").value(75))     // 3 of 4
+                // rating 2 -> LOW_RATING, "not audible" and "slow" -> NEGATIVE_COMMENT
+                .andExpect(jsonPath("$.openAlerts").value(3));
     }
 
     @Test

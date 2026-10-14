@@ -19,8 +19,10 @@ async function loadSummary() {
         kpi('Average rating', s.averageRating == null ? '–' : Number(s.averageRating).toFixed(2),
             s.averageRating == null ? null : starsHtml(s.averageRating)),
         kpi('Satisfaction', s.satisfactionPercent == null ? '–' : s.satisfactionPercent + '%', 'rated 4 or 5'),
-        kpi('Would recommend', s.recommendPercent == null ? '–' : s.recommendPercent + '%')
+        kpi('Would recommend', s.recommendPercent == null ? '–' : s.recommendPercent + '%'),
+        kpi('Open alerts', s.openAlerts, 'open or acknowledged', 'alerts.html')
     ].join('');
+    document.querySelector('.kpi:last-child').classList.toggle('alert-kpi', s.openAlerts > 0);
     document.getElementById('updated').textContent =
         `Updated ${new Date(s.generatedAt).toLocaleTimeString()} · refreshes every ${REFRESH_MS / 1000} s`;
 }

@@ -130,14 +130,13 @@ database can be replaced later without touching the business rules.
 ### 3.2 DevOps / deployment architecture
 
 ```mermaid
-flowchart LR
-    devpc["Developer PC<br/>Git + JDK 21 + Maven"] -- "git push" --> gh["GitHub<br/>vijayyh/event-feedback-dashboard"]
+flowchart TB
+    devpc["Developer PC<br/>Git + JDK 21 + Maven"] -- "git push (feature branch, PR)" --> gh["GitHub<br/>vijayyh/event-feedback-dashboard"]
     gh -- "poll SCM / webhook" --> jk["Jenkins :8080<br/>Jenkinsfile pipeline"]
-    jk -- "mvn clean verify" --> mvn["Maven build<br/>tests + WAR"]
-    mvn -- "archive artefact" --> jk
-    jk -- "deploy WAR" --> tc["Tomcat 11 :8081<br/>/event-feedback-dashboard"]
-    tc -- "/actuator/health" --> jk
-    user(["Users"]) --> tc
+    jk -- "mvn clean verify" --> mvn["Maven build<br/>compile, tests, WAR"]
+    mvn -- "event-feedback-dashboard.war" --> tc["Tomcat 11 :8081<br/>/event-feedback-dashboard"]
+    tc -. "smoke test: /actuator/health" .-> jk
+    user(["Users (browser)"]) --> tc
 ```
 
 ### 3.3 Technology selection

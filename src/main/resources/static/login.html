@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Organiser sign-in · Event Feedback Dashboard</title>
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="index.html">Event <span>Feedback</span> Dashboard</a>
+        <nav class="nav" id="nav"></nav>
+        <div class="top-actions" id="topActions"></div>
+    </div>
+</header>
+
+<main style="max-width:440px">
+    <h1>Organiser sign-in</h1>
+    <p class="subtitle">Organisers create events and manage their status.
+        Attendees don't need an account. <a href="index.html">Browse events</a>.</p>
+
+    <section class="card">
+        <div id="loginNotice" hidden></div>
+        <form id="loginForm" class="stack" novalidate>
+            <div>
+                <label for="username">Username</label>
+                <input id="username" name="username" autocomplete="username" value="organiser" required>
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" required>
+            </div>
+            <button class="btn" type="submit" id="loginBtn" style="width:100%">Sign in</button>
+        </form>
+    </section>
+</main>
+
+<footer>Event Feedback Dashboard · DevOps course project</footer>
+
+<script src="js/common.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

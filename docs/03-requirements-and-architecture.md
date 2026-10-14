@@ -30,6 +30,7 @@ Attendee · Organiser · Department head / management · Jenkins (system actor f
 | FR-10 | The system shall automatically create alerts for rating ≤ 2, negative keywords and event average < 3.0 (min. 5 responses). | Alert/exception view | T09 |
 | FR-11 | The system shall list alerts by severity/status and allow acknowledge and resolve. | Alert/exception view | T10 |
 | FR-12 | The system shall expose health and metrics endpoints for monitoring. | Operations | T14 |
+| FR-13 | The system shall separate roles: anonymous **attendees** browse events, read feedback and submit feedback (ongoing/completed events only); a signed-in **organiser** creates events and changes their status and cannot submit feedback. | Roles (CR-01) | #20 |
 
 ### 1.4 Non-functional requirements
 
@@ -105,7 +106,7 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph CLIENT["Client (any browser, desktop or phone)"]
-        ui["Static UI: HTML + CSS + vanilla JS<br/>index.html · events.html · feedback.html<br/>dashboard · alerts (later sprints)"]
+        ui["Static UI: HTML + CSS + vanilla JS<br/>index · event · feedback · organiser · login · about<br/>dashboard · alerts (later sprints)"]
     end
 
     subgraph SERVER["Apache Tomcat 11 (port 8081) – or embedded Tomcat in dev (port 8090)"]
@@ -224,11 +225,16 @@ All bodies are JSON.
 | 10 | GET | `/api/dashboard/summary` | KPI indicators | T05 | 2 |
 | 11 | GET | `/api/dashboard/status-breakdown` | Event and feedback counts per status | T07 | 3 |
 | 12 | GET | `/api/events/{id}/summary` | Rating distribution and averages for one event | T07 | 3 |
-| 13 | PATCH | `/api/events/{id}/status` | Change event status | T07 | 3 |
+| 13 | PATCH | `/api/events/{id}/status` | Change event status (organiser only) | CR-01 | 1 |
 | 14 | PATCH | `/api/feedback/{id}/status` | Change feedback status | T08 | 3 |
 | 15 | GET | `/api/alerts?status=&severity=` | List alerts | T10 | 4 |
 | 16 | PATCH | `/api/alerts/{id}` | Acknowledge / resolve an alert | T10 | 4 |
 | 17 | GET | `/actuator/metrics` | JVM / HTTP metrics | T14 | 5 |
+| 18 | POST | `/api/auth/login` | Organiser sign-in (`username`, `password`) → 204 / 401 | CR-01 | 1 |
+| 19 | POST | `/api/auth/logout` | Organiser sign-out → 204 | CR-01 | 1 |
+| 20 | GET | `/api/auth/me` | Current role `{organiser, username}` | CR-01 | 1 |
+
+Access rules (CR-01): `POST /api/events` and `PATCH /api/events/{id}/status` require the organiser (401 otherwise); `POST /api/events/{id}/feedback` is for attendees (403 for the organiser, 409 for upcoming or cancelled events); all `GET` endpoints are public. Write requests carry the CSRF token (`XSRF-TOKEN` cookie → `X-XSRF-TOKEN` header).
 
 Errors follow one shape:
 

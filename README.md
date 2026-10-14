@@ -22,7 +22,7 @@ with Maven, tested with JUnit, integrated with Jenkins and deployed to Apache To
 | Layer | Technology |
 |-------|------------|
 | Language / runtime | Java 21 |
-| Framework | Spring Boot 3.5 (Web, Validation, Actuator) |
+| Framework | Spring Boot 3.5 (Web, Validation, Security, Actuator) |
 | Build | Apache Maven 3.9 → `event-feedback-dashboard.war` |
 | Database | H2 (file mode) via Spring Data JPA |
 | UI | HTML, CSS, vanilla JavaScript (served from the WAR) |
@@ -37,30 +37,52 @@ Prerequisites: JDK 21 and Maven 3.9 on the `PATH`.
 ```bash
 git clone https://github.com/vijayyh/event-feedback-dashboard.git
 cd event-feedback-dashboard
+copy application-local.properties.example application-local.properties   # then set your own organiser password
 mvn clean verify        # compile, test and build target/event-feedback-dashboard.war
-mvn spring-boot:run     # run on http://localhost:8090
+mvn spring-boot:run     # run on http://localhost:8090 (loads application-local.properties)
 ```
 
-| URL | What |
-|-----|------|
-| http://localhost:8090/ | Web UI – overview |
-| http://localhost:8090/events.html | Register events, see responses and average rating |
-| http://localhost:8090/feedback.html | Attendee feedback form (`?eventId=<id>` pre-selects an event) |
-| http://localhost:8090/api/info | Application info (JSON) |
-| http://localhost:8090/actuator/health | Health check |
+`application-local.properties` is git-ignored, so the password never reaches GitHub. On a server or in
+Jenkins set the environment variable `SPRING_SECURITY_USER_PASSWORD` instead. If neither is set,
+Spring Boot prints a random password in the log at startup.
+
+## Who uses what
+
+| Role | Sign-in | Can do |
+|------|---------|--------|
+| **Attendee** | none | Browse events, filter by status, read ratings and every comment, give feedback for **ongoing** or **completed** events |
+| **Organiser** | user `organiser` + configured password | Create events, change status (Upcoming → Ongoing → Completed / Cancelled), read feedback. Cannot submit feedback. |
+
+| Page | Who | What |
+|------|-----|------|
+| http://localhost:8090/ | everyone | Events with **All / Upcoming / Ongoing / Completed** tabs, average rating and response count |
+| `event.html?id=<id>` | everyone | Event details, rating summary (average, % recommend, 5★–1★ distribution) and all feedback |
+| `feedback.html?eventId=<id>` | attendees | Feedback form (1–5 ratings, recommend, comment, optional name/e-mail) |
+| `organiser.html` | organiser | Create events and manage their status (redirects to `login.html` when signed out) |
+| `about.html` | everyone | Roles, system health/version and MVP modules |
+| `/api/info`, `/actuator/health` | everyone | Application info and health check (JSON) |
+
+The UI opens in a **light theme**; the header button switches to dark (remembered in the browser).
 
 On first start an empty database is filled with 5 sample events and 9 feedback entries
 (`app.seed-demo-data=true`). Data is stored in `~/.event-feedback-dashboard/efd-db`.
 
-### REST API (Feature 1)
+### REST API
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/events` | List events (newest first) with `responseCount` and `averageRating` |
-| POST | `/api/events` | Create an event – `title`, `category`, `eventDate` required → `201 Created` |
-| GET | `/api/events/{id}` | One event with statistics, `404` if unknown |
-| POST | `/api/events/{id}/feedback` | Submit feedback – three ratings 1–5 and `wouldRecommend` required; `409` for cancelled events |
-| GET | `/api/events/{id}/feedback` | Feedback for an event, newest first (e-mail never returned) |
+| Method | Endpoint | Who | Description |
+|--------|----------|-----|-------------|
+| GET | `/api/events` | everyone | List events (newest first) with `responseCount` and `averageRating` |
+| GET | `/api/events/{id}` | everyone | One event with statistics, `404` if unknown |
+| POST | `/api/events` | organiser | Create an event – `title`, `category`, `eventDate` required → `201 Created` |
+| PATCH | `/api/events/{id}/status` | organiser | Change status, body `{"status":"ONGOING"}` |
+| GET | `/api/events/{id}/feedback` | everyone | Feedback for an event, newest first (e-mail never returned) |
+| POST | `/api/events/{id}/feedback` | attendees | Submit feedback; `409` for upcoming/cancelled events, `403` for organisers |
+| POST | `/api/auth/login` | – | Organiser sign-in (form fields `username`, `password`) → `204` / `401` |
+| POST | `/api/auth/logout` | organiser | Sign out → `204` |
+| GET | `/api/auth/me` | everyone | `{"organiser": true/false, "username": …}` |
+
+Write requests need the CSRF token: the `XSRF-TOKEN` cookie value sent back as the `X-XSRF-TOKEN` header
+(the UI does this automatically). Without sign-in, organiser endpoints return `401`.
 
 Validation errors return `400` with `fieldErrors`, e.g.
 `{"status":400,"error":"Validation failed","fieldErrors":{"title":"must not be blank"}}`.
@@ -85,11 +107,14 @@ event-feedback-dashboard/
 │   ├── main/
 │   │   ├── java/com/eventfeedback/
 │   │   │   ├── EventFeedbackDashboardApplication.java
-│   │   │   └── web/             # REST controllers
+│   │   │   ├── config/          # security, demo data
+│   │   │   ├── event/ feedback/ # entities, services, REST controllers
+│   │   │   └── web/             # info and auth endpoints
 │   │   └── resources/
 │   │       ├── application.properties
-│   │       └── static/          # HTML, CSS, JS
+│   │       └── static/          # index, event, feedback, organiser, login, about pages + css/js
 │   └── test/java/com/eventfeedback/   # JUnit + MockMvc tests
+├── application-local.properties.example   # template for the git-ignored organiser password
 ├── CONTRIBUTING.md              # branch naming rules, commit and PR policy
 └── pom.xml                      # Maven build (WAR packaging)
 ```

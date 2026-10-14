@@ -114,6 +114,17 @@ class FeedbackApiTest {
                 .andExpect(jsonPath("$[1].comments").value("first"));
     }
 
+    @Test
+    void averageRatingIsRoundedToTwoDecimals() throws Exception {
+        long eventId = createEvent("COMPLETED");
+        for (int rating : new int[] {4, 4, 3}) {
+            submit(eventId, feedbackJson(rating, 3, 3, true, "null", "null", "null")).andExpect(status().isCreated());
+        }
+
+        mockMvc.perform(get("/api/events/{id}", eventId))
+                .andExpect(jsonPath("$.averageRating").value(3.67));
+    }
+
     private long createEvent(String status) throws Exception {
         String body = mockMvc.perform(post("/api/events")
                         .contentType(MediaType.APPLICATION_JSON)

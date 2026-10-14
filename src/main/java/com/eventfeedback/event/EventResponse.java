@@ -20,7 +20,9 @@ public record EventResponse(
 
     public static EventResponse from(Event e, EventStats stats) {
         long count = stats != null ? stats.responseCount() : 0;
-        Double average = stats != null ? stats.averageRating() : null;
+        Double average = stats != null && stats.averageRating() != null
+                ? Math.round(stats.averageRating() * 100) / 100.0
+                : null;
         return new EventResponse(e.getId(), e.getTitle(), e.getDescription(), e.getCategory(),
                 e.getVenue(), e.getOrganizer(), e.getEventDate(), e.getExpectedAttendees(),
                 e.getStatus(), e.getCreatedAt(), count, average);

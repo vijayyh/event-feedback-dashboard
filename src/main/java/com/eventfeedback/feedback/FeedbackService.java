@@ -30,6 +30,9 @@ public class FeedbackService {
         if (event.getStatus() == EventStatus.CANCELLED) {
             throw new BusinessRuleException("Feedback cannot be submitted for a cancelled event");
         }
+        if (event.getStatus() == EventStatus.UPCOMING) {
+            throw new BusinessRuleException("Feedback opens when the event starts");
+        }
         Feedback entry = new Feedback(event, request.overallRating(), request.contentRating(),
                 request.organizationRating(), request.wouldRecommend());
         entry.setComments(trimToNull(request.comments()));

@@ -1,0 +1,3 @@
+# Copy this file to application-local.properties (git-ignored) and choose your own password.
+# Sign in on /login.html with user "organiser" and this password.
+spring.security.user.password=change-me

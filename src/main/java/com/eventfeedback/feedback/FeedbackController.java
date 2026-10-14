@@ -2,9 +2,11 @@ package com.eventfeedback.feedback;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +27,11 @@ public class FeedbackController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FeedbackResponse submit(@PathVariable Long eventId, @Valid @RequestBody FeedbackRequest request) {
+    public FeedbackResponse submit(@PathVariable Long eventId, @Valid @RequestBody FeedbackRequest request,
+                                   HttpServletRequest http) {
+        if (http.isUserInRole("ORGANISER")) {
+            throw new AccessDeniedException("Organisers cannot submit feedback for events");
+        }
         return feedbackService.submit(eventId, request);
     }
 

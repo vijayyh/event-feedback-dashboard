@@ -44,13 +44,18 @@ function render() {
 const searchBox = document.getElementById('search');
 const categorySelect = document.getElementById('category');
 
+let latestRequest = 0;
+
 /** Keyword and category go to the server (GET /api/events?q=&category=); the status tabs filter the result. */
 async function loadEvents() {
+    const request = ++latestRequest;
     const params = new URLSearchParams();
     if (searchBox.value.trim()) params.set('q', searchBox.value.trim());
     if (categorySelect.value) params.set('category', categorySelect.value);
     try {
-        allEvents = await api('api/events' + (params.toString() ? '?' + params : ''));
+        const events = await api('api/events' + (params.toString() ? '?' + params : ''));
+        if (request !== latestRequest) return; // a newer search has been sent meanwhile
+        allEvents = events;
         render();
     } catch (err) {
         cards.innerHTML = `<p class="empty">Could not load events: ${escapeHtml(err.message)}</p>`;

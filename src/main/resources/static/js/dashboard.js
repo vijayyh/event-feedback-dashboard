@@ -77,7 +77,10 @@ function workflowSelect(f) {
     return `<select data-id="${f.id}" aria-label="Follow-up status" ${f.status === 'RESOLVED' ? 'disabled' : ''}>${options}</select>`;
 }
 
+let latestSearch = 0;
+
 async function searchFeedback() {
+    const request = ++latestSearch;
     const data = new FormData(searchForm);
     const params = new URLSearchParams();
     if (data.get('q')) params.set('q', data.get('q'));
@@ -87,6 +90,7 @@ async function searchFeedback() {
     if (range) { params.set('minRating', range[0]); params.set('maxRating', range[1]); }
     try {
         const items = await api('api/feedback?' + params);
+        if (request !== latestSearch) return; // a newer search has been sent meanwhile
         feedbackRows.innerHTML = items.length === 0
             ? '<tr><td colspan="5" class="empty">No feedback matches these filters.</td></tr>'
             : items.map(f => `

@@ -23,11 +23,11 @@ async function loadEvents() {
                     ${escapeHtml(e.title)}
                     <span class="sub">${escapeHtml(CATEGORY_LABELS[e.category] || e.category)}${e.venue ? ' · ' + escapeHtml(e.venue) : ''}</span>
                 </td>
-                <td>${formatDate(e.eventDate)}</td>
+                <td class="nowrap">${formatDate(e.eventDate)}</td>
                 <td>${statusChip(e.status)}</td>
                 <td class="num">${e.responseCount}</td>
                 <td class="num">${ratingText(e.averageRating)}</td>
-                <td>${e.status === 'CANCELLED' ? '' :
+                <td class="nowrap">${e.status === 'CANCELLED' ? '' :
                     `<a class="btn small secondary" href="feedback.html?eventId=${e.id}">Feedback</a>`}</td>
             </tr>`).join('');
     } catch (err) {

@@ -84,9 +84,16 @@ h2 { font-size: 1.15rem; margin: 0 0 12px; }
     padding: 20px;
 }
 .grid { display: grid; gap: 16px; }
+/* let wide content (tables) scroll inside its card instead of widening the page */
+.grid > * { min-width: 0; }
 .grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 .grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .stack > * + * { margin-top: 16px; }
+
+/* Events page: narrow form column, wide table column; stacked on small screens */
+.grid-events { grid-template-columns: minmax(300px, 380px) 1fr; align-items: start; }
+.grid-events .form-grid { grid-template-columns: 1fr; }
+@media (max-width: 900px) { .grid-events { grid-template-columns: 1fr; } }
 
 /* ---------- status / chips ---------- */
 .chip {
@@ -185,6 +192,7 @@ th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--bor
 th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
 td .sub { display: block; color: var(--muted); font-size: .8rem; }
 .num { text-align: right; white-space: nowrap; }
+.nowrap { white-space: nowrap; }
 .empty { color: var(--muted); text-align: center; padding: 24px; }
 
 .feedback-list { list-style: none; margin: 0; padding: 0; }

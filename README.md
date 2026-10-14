@@ -60,8 +60,13 @@ Spring Boot prints a random password in the log at startup.
 | `feedback.html?eventId=<id>` | attendees | Feedback form (1–5 ratings, recommend, comment, optional name/e-mail) |
 | `organiser.html` | organiser | Create events and manage their status (redirects to `login.html` when signed out) |
 | `dashboard.html` | organiser | KPI cards (auto-refresh), events/feedback by status with drill-down, feedback search and follow-up workflow |
+| `alerts.html` | organiser | Alert/exception view: open, acknowledged and resolved alerts with severity filter |
 | `about.html` | everyone | Roles, system health/version and MVP modules |
 | `/api/info`, `/actuator/health` | everyone | Application info and health check (JSON) |
+
+Alerts are raised automatically for every new feedback: rating ≤ 2 (`LOW_RATING`, high), a negative keyword in the
+comment (`NEGATIVE_COMMENT`, medium) and an event average below 3.0 after 5+ responses (`LOW_AVERAGE`, critical).
+Thresholds and keywords are set with `app.alerts.*` in `application.properties`.
 
 The UI opens in a **light theme**; the header button switches to dark (remembered in the browser).
 
@@ -82,6 +87,9 @@ On first start an empty database is filled with 5 sample events and 9 feedback e
 | PATCH | `/api/feedback/{id}/status` | organiser | Follow-up: `NEW` → `REVIEWED` / `ACTION_REQUIRED` → `RESOLVED` (final) |
 | GET | `/api/dashboard/summary` | organiser | Events, responses, average rating, satisfaction %, recommend % |
 | GET | `/api/dashboard/status-breakdown` | organiser | Counts per event status and per feedback status |
+| GET | `/api/alerts?status=&severity=` | organiser | Alerts, newest first (`LOW_RATING`, `NEGATIVE_COMMENT`, `LOW_AVERAGE`) |
+| GET | `/api/alerts/count` | organiser | `{"unresolved": n}` for the navigation badge |
+| PATCH | `/api/alerts/{id}` | organiser | `{"status":"ACKNOWLEDGED"}` or `RESOLVED` (never reopened) |
 | POST | `/api/events/{id}/feedback` | attendees | Submit feedback; `409` for upcoming/cancelled events, `403` for organisers |
 | POST | `/api/auth/login` | – | Organiser sign-in (form fields `username`, `password`) → `204` / `401` |
 | POST | `/api/auth/logout` | organiser | Sign out → `204` |

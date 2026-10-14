@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.eventfeedback.alert.AlertService;
 import com.eventfeedback.event.EventRepository;
 import com.eventfeedback.event.EventStatus;
 import com.eventfeedback.feedback.FeedbackRepository;
@@ -26,9 +27,11 @@ public class DashboardService {
      * Summary indicators for the dashboard (T05).
      *
      * @param satisfactionPercent share of responses rated {@value DashboardService#SATISFIED_FROM} or higher
+     * @param openAlerts          alerts not yet resolved (open or acknowledged)
      */
     public record SummaryIndicators(long totalEvents, long totalResponses, Double averageRating,
-                                    Integer satisfactionPercent, Integer recommendPercent, Instant generatedAt) {
+                                    Integer satisfactionPercent, Integer recommendPercent, long openAlerts,
+                                    Instant generatedAt) {
     }
 
     /** Counts per status for the drill-down (T07); every status is present, also with 0. */
@@ -37,10 +40,12 @@ public class DashboardService {
 
     private final EventRepository events;
     private final FeedbackRepository feedback;
+    private final AlertService alerts;
 
-    public DashboardService(EventRepository events, FeedbackRepository feedback) {
+    public DashboardService(EventRepository events, FeedbackRepository feedback, AlertService alerts) {
         this.events = events;
         this.feedback = feedback;
+        this.alerts = alerts;
     }
 
     public SummaryIndicators summary() {
@@ -51,6 +56,7 @@ public class DashboardService {
                 round2(feedback.averageOverallRating()),
                 percent(feedback.countByOverallRatingGreaterThanEqual(SATISFIED_FROM), responses),
                 percent(feedback.countByWouldRecommendTrue(), responses),
+                alerts.countUnresolved(),
                 Instant.now());
     }
 

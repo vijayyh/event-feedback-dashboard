@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.eventfeedback.alert.AlertRuleEngine;
 import com.eventfeedback.common.BusinessRuleException;
 import com.eventfeedback.common.ResourceNotFoundException;
 import com.eventfeedback.event.Event;
@@ -25,10 +26,12 @@ public class FeedbackService {
 
     private final FeedbackRepository feedback;
     private final EventService eventService;
+    private final AlertRuleEngine alertRules;
 
-    public FeedbackService(FeedbackRepository feedback, EventService eventService) {
+    public FeedbackService(FeedbackRepository feedback, EventService eventService, AlertRuleEngine alertRules) {
         this.feedback = feedback;
         this.eventService = eventService;
+        this.alertRules = alertRules;
     }
 
     @Transactional
@@ -45,7 +48,9 @@ public class FeedbackService {
         entry.setComments(trimToNull(request.comments()));
         entry.setAttendeeName(trimToNull(request.attendeeName()));
         entry.setAttendeeEmail(trimToNull(request.attendeeEmail()));
-        return FeedbackResponse.from(feedback.save(entry));
+        Feedback saved = feedback.save(entry);
+        alertRules.evaluate(saved); // T09: raise alerts automatically
+        return FeedbackResponse.from(saved);
     }
 
     public List<FeedbackResponse> listForEvent(Long eventId) {

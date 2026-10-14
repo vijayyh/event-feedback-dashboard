@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alerts · Event Feedback Dashboard</title>
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="index.html">Event <span>Feedback</span> Dashboard</a>
+        <nav class="nav" id="nav"></nav>
+        <div class="top-actions" id="topActions"></div>
+    </div>
+</header>
+
+<main>
+    <h1>Alerts</h1>
+    <p class="subtitle">Raised automatically for low ratings, negative comments and events whose average drops below 3.0.</p>
+
+    <div id="alertNotice" hidden></div>
+    <div class="toolbar">
+        <div class="tabs" id="alertTabs" role="group" aria-label="Filter alerts by status" style="margin:0"></div>
+        <select id="severity" aria-label="Filter by severity">
+            <option value="">All severities</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+        </select>
+    </div>
+
+    <ul class="alert-list" id="alertList"><li class="empty">Loading alerts…</li></ul>
+</main>
+
+<footer>Event Feedback Dashboard · DevOps course project</footer>
+
+<script src="js/common.js"></script>
+<script src="js/alerts.js"></script>
+</body>
+</html>

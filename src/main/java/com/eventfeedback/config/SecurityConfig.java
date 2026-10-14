@@ -50,6 +50,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/dashboard/**", "/dashboard.html").hasRole(ORGANISER)
                 .requestMatchers(HttpMethod.GET, "/api/feedback").hasRole(ORGANISER)
                 .requestMatchers(HttpMethod.PATCH, "/api/feedback/*/status").hasRole(ORGANISER)
+                // alert/exception view
+                .requestMatchers("/api/alerts/**", "/alerts.html").hasRole(ORGANISER)
                 .anyRequest().permitAll())
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())

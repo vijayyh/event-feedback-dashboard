@@ -29,6 +29,7 @@ function drawNav(nav, page, organiser) {
         // organisers do not give feedback, so the link is only for attendees
         ...(organiser ? [] : [{ href: 'feedback.html', label: 'Give feedback', pages: ['feedback.html'] }]),
         ...(organiser ? [{ href: 'dashboard.html', label: 'Dashboard', pages: ['dashboard.html'] }] : []),
+        ...(organiser ? [{ href: 'alerts.html', label: 'Alerts <span class="nav-badge" id="alertBadge" hidden></span>', pages: ['alerts.html'] }] : []),
         { href: 'organiser.html', label: 'Organiser', pages: ['organiser.html', 'login.html'] },
         { href: 'about.html', label: 'About', pages: ['about.html'] }
     ];
@@ -71,8 +72,24 @@ async function renderHeader() {
     drawNav(nav, page, false);
     if (actions) drawActions(actions, null);
     const me = await currentUser();
-    if (me.organiser) drawNav(nav, page, true);
+    if (me.organiser) {
+        drawNav(nav, page, true);
+        refreshAlertBadge();
+    }
     if (actions) drawActions(actions, me);
+}
+
+/** Shows the number of unresolved alerts next to the Alerts link (organisers only). */
+async function refreshAlertBadge() {
+    const badge = document.getElementById('alertBadge');
+    if (!badge) return;
+    try {
+        const { unresolved } = await api('api/alerts/count');
+        badge.textContent = unresolved;
+        badge.hidden = unresolved === 0;
+    } catch (err) {
+        badge.hidden = true;
+    }
 }
 
 /* ---------- HTTP ---------- */

@@ -43,9 +43,27 @@ mvn spring-boot:run     # run on http://localhost:8090
 
 | URL | What |
 |-----|------|
-| http://localhost:8090/ | Web UI |
+| http://localhost:8090/ | Web UI – overview |
+| http://localhost:8090/events.html | Register events, see responses and average rating |
+| http://localhost:8090/feedback.html | Attendee feedback form (`?eventId=<id>` pre-selects an event) |
 | http://localhost:8090/api/info | Application info (JSON) |
 | http://localhost:8090/actuator/health | Health check |
+
+On first start an empty database is filled with 5 sample events and 9 feedback entries
+(`app.seed-demo-data=true`). Data is stored in `~/.event-feedback-dashboard/efd-db`.
+
+### REST API (Feature 1)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/events` | List events (newest first) with `responseCount` and `averageRating` |
+| POST | `/api/events` | Create an event – `title`, `category`, `eventDate` required → `201 Created` |
+| GET | `/api/events/{id}` | One event with statistics, `404` if unknown |
+| POST | `/api/events/{id}/feedback` | Submit feedback – three ratings 1–5 and `wouldRecommend` required; `409` for cancelled events |
+| GET | `/api/events/{id}/feedback` | Feedback for an event, newest first (e-mail never returned) |
+
+Validation errors return `400` with `fieldErrors`, e.g.
+`{"status":400,"error":"Validation failed","fieldErrors":{"title":"must not be blank"}}`.
 
 ### Deploy to Tomcat 11
 

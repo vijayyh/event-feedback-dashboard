@@ -1,4 +1,5 @@
 // Event Feedback Dashboard – CI/CD pipeline (Windows agent: bat / powershell steps)
+// Checkout -> Build -> Unit & API tests -> UI tests (Selenium) -> Package -> Deploy to Tomcat -> Smoke test
 //
 // Jenkins prerequisites (Manage Jenkins):
 //   Tools:        JDK "JDK-21" (C:\DevTools\jdk-21) and Maven "Maven-3.9.16"
@@ -55,7 +56,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Unit & API tests') {
             steps {
                 bat 'mvn -B -ntp test'
             }
@@ -66,14 +67,32 @@ pipeline {
             }
         }
 
+        stage('UI tests (Selenium)') {
+            steps {
+                // starts the app on a random port and drives headless Chrome through the user journeys;
+                // also builds the WAR and enforces the coverage check
+                bat 'mvn -B -ntp verify -DskipUTs=true'
+            }
+            post {
+                always {
+                    junit testResults: 'target/failsafe-reports/*.xml', allowEmptyResults: true
+                    archiveArtifacts artifacts: 'target/selenium-screenshots/**', allowEmptyArchive: true
+                }
+            }
+        }
+
         stage('Package') {
             steps {
-                bat 'mvn -B -ntp package -DskipTests'
                 archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+                archiveArtifacts artifacts: 'target/site/jacoco/**', allowEmptyArchive: true
             }
         }
 
         stage('Deploy to Tomcat') {
+            when {
+                // failed tests stop deployment: only a fully green build may be deployed
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
             steps {
                 withCredentials([string(credentialsId: 'efd-organiser-password', variable: 'ORGANISER_PASSWORD')]) {
                     powershell '''
@@ -116,6 +135,9 @@ pipeline {
         }
 
         stage('Smoke test') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
             steps {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
@@ -143,7 +165,10 @@ pipeline {
             echo "Deployed ${env.APP_CONTEXT} (${params.DEPLOY_ENV}): ${params.TOMCAT_URL}/${env.APP_CONTEXT}/"
         }
         failure {
-            echo 'Pipeline failed - nothing was deployed after the failing stage.'
+            echo 'Pipeline failed - deployment was skipped. See the test reports and archived Selenium screenshots.'
+        }
+        unstable {
+            echo 'Tests reported failures - deployment was skipped.'
         }
     }
 }

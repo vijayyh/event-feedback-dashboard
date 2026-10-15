@@ -13,7 +13,7 @@
 
     <groupId>com.eventfeedback</groupId>
     <artifactId>event-feedback-dashboard</artifactId>
-    <version>0.9.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>Event Feedback Dashboard</name>

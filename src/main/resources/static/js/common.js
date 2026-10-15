@@ -208,4 +208,17 @@ function showNotice(el, type, message) {
     el.hidden = false;
 }
 
-document.addEventListener('DOMContentLoaded', renderHeader);
+/** Adds the environment name (from the deployment) to the footer, e.g. "staging · v1.0.0". */
+async function renderFooter() {
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+    try {
+        const info = await api('api/info');
+        footer.insertAdjacentHTML('beforeend',
+            ` · <span class="chip planned" id="envChip">${escapeHtml(info.environment)}</span> v${escapeHtml(info.version)}`);
+    } catch (err) {
+        // footer stays without version information
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => { renderHeader(); renderFooter(); });

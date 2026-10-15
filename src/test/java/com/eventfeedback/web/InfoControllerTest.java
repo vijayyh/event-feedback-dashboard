@@ -25,6 +25,7 @@ class InfoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Event Feedback Dashboard"))
                 .andExpect(jsonPath("$.version").isNotEmpty())
+                .andExpect(jsonPath("$.environment").value("local"))
                 .andExpect(jsonPath("$.serverTime").isNotEmpty());
     }
 

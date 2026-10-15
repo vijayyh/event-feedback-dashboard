@@ -305,6 +305,8 @@ a.kpi:hover { text-decoration: none; border-color: var(--primary); }
     line-height: 20px;
     text-align: center;
 }
+/* display:inline-block above would otherwise override the hidden attribute */
+.nav-badge[hidden] { display: none; }
 .alert-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .alert-item { border-left-width: 4px; }
 .alert-item .head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; }

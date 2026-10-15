@@ -26,7 +26,7 @@ with Maven, tested with JUnit, integrated with Jenkins and deployed to Apache To
 | Build | Apache Maven 3.9 → `event-feedback-dashboard.war` |
 | Database | H2 (file mode) via Spring Data JPA |
 | UI | HTML, CSS, vanilla JavaScript (served from the WAR) |
-| Tests | JUnit 5, Spring MockMvc |
+| Tests | JUnit 5, Spring MockMvc, Selenium WebDriver (Chrome), JaCoCo |
 | CI/CD | Jenkins (port 8080) |
 | Deployment target | Apache Tomcat 11 (port 8081) |
 
@@ -101,6 +101,18 @@ Write requests need the CSRF token: the `XSRF-TOKEN` cookie value sent back as t
 Validation errors return `400` with `fieldErrors`, e.g.
 `{"status":400,"error":"Validation failed","fieldErrors":{"title":"must not be blank"}}`.
 
+### Tests
+
+| Command | Runs |
+|---------|------|
+| `mvn test` | 45 unit and API tests (JUnit 5, MockMvc) + JaCoCo report `target/site/jacoco/index.html` |
+| `mvn verify` | the above + 9 **Selenium** browser journeys in headless Chrome (`*UiIT.java`) + coverage check (service layer ≥ 70 %) |
+| `mvn verify -DskipUTs=true` | only the Selenium journeys |
+| `mvn verify -Dselenium.headless=false` | watch the journeys in a visible Chrome window |
+
+Failed UI tests leave a screenshot and the page HTML in `target/selenium-screenshots/`.
+Test plan: [docs/09-selenium-test-plan.md](docs/09-selenium-test-plan.md).
+
 ### Deploy to Tomcat 11
 
 ```bash
@@ -143,6 +155,7 @@ event-feedback-dashboard/
 | 4 | [Git and GitHub repository initialization](docs/04-git-and-github-setup.md) |
 | 5 | [Feature development with branching](docs/05-feature-branching.md) |
 | 6 | [MVP completion and Git collaboration](docs/06-mvp-completion-and-collaboration.md) · [CHANGELOG](CHANGELOG.md) |
+| 9 | [Selenium test design and local execution](docs/09-selenium-test-plan.md) |
 
 ## Branching and contributions
 

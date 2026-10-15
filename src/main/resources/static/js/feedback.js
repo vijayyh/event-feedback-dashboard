@@ -58,7 +58,7 @@ form.addEventListener('submit', async (ev) => {
         overallRating: data.overallRating && Number(data.overallRating),
         contentRating: data.contentRating && Number(data.contentRating),
         organizationRating: data.organizationRating && Number(data.organizationRating),
-        wouldRecommend: data.wouldRecommend == null ? null : data.wouldRecommend !== 'true',
+        wouldRecommend: data.wouldRecommend == null ? null : data.wouldRecommend === 'true',
         comments: data.comments,
         attendeeName: data.attendeeName,
         attendeeEmail: data.attendeeEmail

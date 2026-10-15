@@ -105,7 +105,7 @@ Validation errors return `400` with `fieldErrors`, e.g.
 
 | Command | Runs |
 |---------|------|
-| `mvn test` | 45 unit and API tests (JUnit 5, MockMvc) + JaCoCo report `target/site/jacoco/index.html` |
+| `mvn test` | 51 unit and API tests (JUnit 5, MockMvc) + JaCoCo report `target/site/jacoco/index.html` |
 | `mvn verify` | the above + 9 **Selenium** browser journeys in headless Chrome (`*UiIT.java`) + coverage check (service layer ≥ 70 %) |
 | `mvn verify -DskipUTs=true` | only the Selenium journeys |
 | `mvn verify -Dselenium.headless=false` | watch the journeys in a visible Chrome window |
@@ -115,11 +115,16 @@ Test plan: [docs/09-selenium-test-plan.md](docs/09-selenium-test-plan.md).
 
 ### Deploy to Tomcat 11
 
-```bash
-copy target\event-feedback-dashboard.war "C:\Program Files\Apache Software Foundation\Tomcat 11.0\webapps\"
-```
+Deployment is done by the Jenkins pipeline ([Jenkinsfile](Jenkinsfile)), not by hand. Every commit on `develop` is
+built, tested and, only when all tests pass, deployed to a Tomcat 11 instance on JDK 21 (port 8081) and smoke-tested.
+To deploy on demand, open *EFD-Pipeline → Build with Parameters* and choose `DEPLOY_ENV`:
 
-Open http://localhost:8081/event-feedback-dashboard/
+| DEPLOY_ENV | URL |
+|------------|-----|
+| `staging` (default) | http://localhost:8081/event-feedback-dashboard-staging/ |
+| `production` | http://localhost:8081/event-feedback-dashboard/ |
+
+Details: [docs/08](docs/08-pipeline-and-tomcat-deployment.md).
 
 ## Project structure
 
@@ -155,7 +160,11 @@ event-feedback-dashboard/
 | 4 | [Git and GitHub repository initialization](docs/04-git-and-github-setup.md) |
 | 5 | [Feature development with branching](docs/05-feature-branching.md) |
 | 6 | [MVP completion and Git collaboration](docs/06-mvp-completion-and-collaboration.md) · [CHANGELOG](CHANGELOG.md) |
+| 7 | [Continuous integration with Jenkins](docs/07-jenkins-ci-job.md) |
+| 8 | [Pipeline as code and deployment to Tomcat](docs/08-pipeline-and-tomcat-deployment.md) |
 | 9 | [Selenium test design and local execution](docs/09-selenium-test-plan.md) |
+| 10 | [Continuous testing in Jenkins](docs/10-continuous-testing-in-jenkins.md) |
+| – | [Presentation guide – how to run and demo](docs/presentation-guide.md) |
 
 ## Branching and contributions
 

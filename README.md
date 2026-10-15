@@ -142,6 +142,7 @@ event-feedback-dashboard/
 | 3 | [Requirements, architecture and technology setup](docs/03-requirements-and-architecture.md) |
 | 4 | [Git and GitHub repository initialization](docs/04-git-and-github-setup.md) |
 | 5 | [Feature development with branching](docs/05-feature-branching.md) |
+| 6 | [MVP completion and Git collaboration](docs/06-mvp-completion-and-collaboration.md) · [CHANGELOG](CHANGELOG.md) |
 
 ## Branching and contributions
 

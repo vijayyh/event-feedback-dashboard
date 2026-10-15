@@ -160,6 +160,28 @@ Snapshot at the start of Sprint 1:
 On GitHub the board is kept with **labels** (`status: todo`, `status: in-progress`, `status: review`)
 and **milestones** (`Sprint 1` … `Sprint 5`); an issue is closed when it reaches Done.
 
+### Board at release v0.9.0 (14-Oct-2026, Task 6)
+
+All functional MVP items are **Done**; the remaining items are the DevOps pipeline work of Tasks 7–10 and the v1.0 release.
+
+| To Do | In Progress | Review / PR | Done |
+|-------|-------------|-------------|------|
+| T11 Tests + coverage (#11) | | | T01 Skeleton (#1) |
+| T12 Jenkins CI (#12) | | | T02 Event entry (#2) |
+| T13 Tomcat deploy (#13) | | | T03 Feedback submission (#3) |
+| T14 Monitoring (#14) | | | CR-01 Roles, tabs, feedback page, theme (#20) |
+| T15 Release v1.0 (#15) | | | T04 Search and filter (#4) |
+| | | | T05 Summary indicators API (#5) |
+| | | | T06 Dashboard UI (#6) |
+| | | | T07 Status drill-down (#7) |
+| | | | T08 Feedback workflow (#8) |
+| | | | T09 Alert rules (#9) |
+| | | | T10 Alert view (#10) |
+| | | | Bugs #17, #24 |
+
+**Velocity:** 39 of 56 MVP points + 8 points of CR-01 delivered. Planned sprints 2–3 work was pulled forward
+because both feature branches were developed in parallel (see [Task 6](06-mvp-completion-and-collaboration.md)).
+
 ---
 
 ## 4. Sprint plan

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Event feedback · Event Feedback Dashboard</title>
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="topbar-inner">
+        <a class="brand" href="index.html">Event <span>Feedback</span> Dashboard</a>
+        <nav class="nav" id="nav"></nav>
+        <div class="top-actions" id="topActions"></div>
+    </div>
+</header>
+
+<main>
+    <a class="back" href="index.html">&larr; All events</a>
+    <div id="eventHeader"><p class="empty">Loading event…</p></div>
+
+    <div class="stack" id="eventBody" hidden>
+        <section class="card">
+            <h2>Ratings</h2>
+            <div id="summary"></div>
+        </section>
+
+        <section class="card">
+            <h2>What attendees said <span class="muted" id="feedbackCount"></span></h2>
+            <ul class="feedback-list" id="feedbackList"></ul>
+        </section>
+    </div>
+</main>
+
+<footer>Event Feedback Dashboard · DevOps course project</footer>
+
+<script src="js/common.js"></script>
+<script src="js/event.js"></script>
+</body>
+</html>

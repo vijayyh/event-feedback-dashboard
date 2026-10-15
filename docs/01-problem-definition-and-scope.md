@@ -17,7 +17,7 @@ is mostly manual.
 ### Current process ("as-is")
 
 ```mermaid
-flowchart LR
+flowchart TB
     A[Event ends] --> B[Paper forms / generic Google Form shared]
     B --> C[Responses scattered across sheets, WhatsApp, paper]
     C --> D[Coordinator copies data into Excel manually]
@@ -145,7 +145,7 @@ plus the DevOps tasks needed to deliver them automatically.
 
 ### Out of scope for the MVP
 
-- Login, roles and single sign-on
+- Multiple user accounts, self-registration and single sign-on (a single organiser sign-in was added by CR-01)
 - E-mail / SMS / WhatsApp notifications
 - QR-code generation for feedback links
 - Machine-learning sentiment analysis
@@ -162,3 +162,9 @@ plus the DevOps tasks needed to deliver them automatically.
 
 > Any change to the 15 tasks after this sign-off goes through the backlog as a new item
 > and is planned for a later sprint (scope freeze).
+
+### Scope change log
+
+| ID | Date | Change | Reason | Impact | Tracking |
+|----|------|--------|--------|--------|----------|
+| CR-01 | 14-Oct-2026 | Separate **organiser** (signed in) and **attendee** (anonymous) roles; status tabs; event page with clear feedback view; light theme with dark toggle; feedback only for ongoing/completed events | Sprint 1 demo: the single page let attendees create events and organisers rate their own events, and feedback was hard to read | +8 points in Sprint 1; adds Spring Security; pulls `PATCH /api/events/{id}/status` forward from T07 | [#20](https://github.com/vijayyh/event-feedback-dashboard/issues/20) |

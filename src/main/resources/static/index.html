@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Event Feedback Dashboard</title>
+    <title>Events · Event Feedback Dashboard</title>
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -11,66 +12,37 @@
     <div class="topbar-inner">
         <a class="brand" href="index.html">Event <span>Feedback</span> Dashboard</a>
         <nav class="nav" id="nav"></nav>
+        <div class="top-actions" id="topActions"></div>
     </div>
 </header>
 
 <main>
-    <h1>Automated Event Feedback Dashboard</h1>
-    <p class="subtitle">Collect event feedback, see results instantly and catch problems automatically.</p>
+    <h1>Events</h1>
+    <p class="subtitle">See how every event was rated, read what attendees said, and share your own feedback.</p>
 
-    <div class="grid grid-2">
-        <section class="card">
-            <h2>System status</h2>
-            <dl class="kv">
-                <dt>Health</dt>    <dd id="health"><span class="chip">checking…</span></dd>
-                <dt>Version</dt>   <dd id="version">–</dd>
-                <dt>Java</dt>      <dd id="java">–</dd>
-                <dt>Server time</dt><dd id="serverTime">–</dd>
-            </dl>
-        </section>
-
-        <section class="card">
-            <h2>About this MVP</h2>
-            <p>Organisers register events, attendees rate them in under a minute, and the dashboard
-                summarises everything in real time. Low ratings and negative comments raise alerts
-                automatically. Built and delivered with Git, Maven, Jenkins and Tomcat.</p>
-        </section>
+    <div class="toolbar">
+        <input type="search" id="search" placeholder="Search events by name, venue or organiser…"
+               aria-label="Search events">
+        <select id="category" aria-label="Filter by category">
+            <option value="">All categories</option>
+            <option value="WORKSHOP">Workshop</option>
+            <option value="SEMINAR">Seminar</option>
+            <option value="WEBINAR">Webinar</option>
+            <option value="HACKATHON">Hackathon</option>
+            <option value="CULTURAL">Cultural</option>
+            <option value="SPORTS">Sports</option>
+            <option value="OTHER">Other</option>
+        </select>
     </div>
-
-    <h2 style="margin-top:28px">MVP modules</h2>
-    <div class="grid grid-3" id="modules"></div>
+    <div class="tabs" id="statusTabs" role="group" aria-label="Filter events by status"></div>
+    <div class="grid grid-3" id="eventCards">
+        <p class="empty">Loading events…</p>
+    </div>
 </main>
 
 <footer>Event Feedback Dashboard · DevOps course project</footer>
 
 <script src="js/common.js"></script>
-<script>
-    const MODULES = [
-        { name: 'Data / event entry',    desc: 'Register events and submit feedback.',               sprint: 1, live: false },
-        { name: 'Searchable dashboard',  desc: 'Search and filter events and feedback.',            sprint: 2, live: false },
-        { name: 'Summary indicators',    desc: 'KPI cards: responses, average rating, satisfaction.', sprint: 2, live: false },
-        { name: 'Status drill-down',     desc: 'From status counts down to one event’s detail.', sprint: 3, live: false },
-        { name: 'Alert / exception view', desc: 'Automatic alerts for low ratings and complaints.',  sprint: 4, live: false }
-    ];
-
-    document.getElementById('modules').innerHTML = MODULES.map(m => `
-        <article class="card module">
-            <span class="chip ${m.live ? 'live' : 'planned'}">${m.live ? 'Live' : 'Sprint ' + m.sprint}</span>
-            <h3>${m.link ? `<a href="${m.link}">${m.name}</a>` : m.name}</h3>
-            <p>${m.desc}</p>
-        </article>`).join('');
-
-    api('api/info').then(info => {
-        document.getElementById('version').textContent = info.version;
-        document.getElementById('java').textContent = info.javaVersion;
-        document.getElementById('serverTime').textContent = new Date(info.serverTime).toLocaleString();
-    }).catch(() => {});
-
-    api('actuator/health').then(h => {
-        document.getElementById('health').innerHTML = `<span class="chip up">${escapeHtml(h.status)}</span>`;
-    }).catch(() => {
-        document.getElementById('health').innerHTML = '<span class="chip down">DOWN</span>';
-    });
-</script>
+<script src="js/home.js"></script>
 </body>
 </html>

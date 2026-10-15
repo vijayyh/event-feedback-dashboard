@@ -124,7 +124,7 @@ pipeline {
                         $seed = $env:SEED_DEMO_DATA.ToLower()
                         $xml = @"
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Written by Jenkins build $env:BUILD_NUMBER - do not edit by hand -->
+<!-- Written by the Jenkins pipeline EFD-Pipeline - do not edit by hand -->
 <Context>
     <Parameter name="app.environment" value="$($esc::Escape($env:DEPLOY_ENV))" override="false"/>
     <Parameter name="app.seed-demo-data" value="$seed" override="false"/>
@@ -134,7 +134,15 @@ pipeline {
 "@
                         $ctxDir = Join-Path $base 'conf\\Catalina\\localhost'
                         New-Item -ItemType Directory -Force $ctxDir | Out-Null
-                        [IO.File]::WriteAllText((Join-Path $ctxDir "$context.xml"), $xml)
+                        # Tomcat redeploys the app whenever this file changes, and the WAR copy below already
+                        # triggers a reload, so the file is only rewritten when a setting really changed
+                        $ctxFile = Join-Path $ctxDir "$context.xml"
+                        if (-not (Test-Path $ctxFile) -or [IO.File]::ReadAllText($ctxFile) -ne $xml) {
+                            [IO.File]::WriteAllText($ctxFile, $xml)
+                            Write-Host "Context settings written to $ctxFile"
+                        } else {
+                            Write-Host 'Context settings unchanged'
+                        }
 
                         # 3. Hot deploy: Tomcat (autoDeploy=true) picks up the new WAR
                         Copy-Item 'target\\event-feedback-dashboard.war' (Join-Path $base "webapps\\$context.war") -Force

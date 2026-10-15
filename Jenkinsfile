@@ -177,6 +177,10 @@ pipeline {
                     $info = Invoke-RestMethod "$base/api/info" -UseBasicParsing
                     Write-Host "Running version $($info.version) in environment '$($info.environment)'"
                     if ($info.environment -ne $env:DEPLOY_ENV) { throw "Expected environment $env:DEPLOY_ENV but got $($info.environment)" }
+                    $page = Invoke-WebRequest "$base/" -UseBasicParsing
+                    $type = $page.Headers['Content-Type']
+                    Write-Host "Home page Content-Type: $type"
+                    if ($type -notmatch 'charset=UTF-8') { throw "Home page is not served as UTF-8 ($type)" }
                     $events = Invoke-RestMethod "$base/api/events" -UseBasicParsing
                     Write-Host "Smoke test passed: $($events.Count) events served at $base/"
                 '''

@@ -36,6 +36,7 @@
             <dl class="kv">
                 <dt>Health</dt>     <dd id="health"><span class="chip">checking…</span></dd>
                 <dt>Version</dt>    <dd id="version">–</dd>
+                <dt>Environment</dt><dd id="environment">–</dd>
                 <dt>Java</dt>       <dd id="java">–</dd>
                 <dt>Server time</dt><dd id="serverTime">–</dd>
             </dl>
@@ -66,6 +67,7 @@
 
     api('api/info').then(info => {
         document.getElementById('version').textContent = info.version;
+        document.getElementById('environment').innerHTML = `<span class="chip planned">${escapeHtml(info.environment)}</span>`;
         document.getElementById('java').textContent = info.javaVersion;
         document.getElementById('serverTime').textContent = new Date(info.serverTime).toLocaleString();
     }).catch(() => {});

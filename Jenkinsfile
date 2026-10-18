@@ -1,11 +1,14 @@
 // Event Feedback Dashboard – CI/CD pipeline (Windows agent: bat / powershell steps)
-// Checkout -> Build -> Unit & API tests -> UI tests (Selenium) -> Package -> Deploy to Tomcat -> Smoke test
+// Checkout -> Build -> Unit & API tests -> UI tests (Selenium) -> Package -> Docker image (build + push)
+//   -> Deploy to Tomcat -> Smoke test -> Deploy container (fresh container from the registry + smoke test)
 //
 // Jenkins prerequisites (Manage Jenkins):
 //   Tools:        JDK "JDK-21" (C:\DevTools\jdk-21) and Maven "Maven-3.9.16"
 //   Credentials:  Secret text "efd-organiser-password" – organiser sign-in password of the deployed app
 //   Tomcat 11:    installed in TOMCAT_HOME. The pipeline runs its own Tomcat instance (CATALINA_BASE = TOMCAT_BASE)
 //                 on JDK 21, so the Windows Tomcat service and its settings are not touched.
+//   Docker:       Docker Desktop running; local registry on REGISTRY
+//                 (docker run -d --name efd-registry --restart always -p 5000:5000 -v efd-registry-data:/var/lib/registry registry:2)
 pipeline {
     agent any
 
@@ -25,11 +28,18 @@ pipeline {
                description: 'Tomcat instance folder (CATALINA_BASE) managed by this pipeline: conf, webapps, logs.')
         string(name: 'TOMCAT_URL', defaultValue: 'http://localhost:8081',
                description: 'Base URL of the Tomcat instance; its port is the HTTP port the instance listens on.')
+        string(name: 'REGISTRY', defaultValue: 'localhost:5000',
+               description: 'Docker registry that receives the versioned image.')
+        string(name: 'CONTAINER_PORT', defaultValue: '8085',
+               description: 'Host port of the application container deployed by the pipeline.')
     }
 
     environment {
         // production -> /event-feedback-dashboard, staging -> /event-feedback-dashboard-staging
         APP_CONTEXT = "${params.DEPLOY_ENV == 'production' ? 'event-feedback-dashboard' : 'event-feedback-dashboard-' + params.DEPLOY_ENV}"
+        DOCKER      = 'C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe'
+        IMAGE_NAME  = "${params.REGISTRY}/event-feedback-dashboard"
+        CONTAINER   = 'efd-app'
     }
 
     options {
@@ -86,6 +96,39 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: 'target/*.war', fingerprint: true
                 archiveArtifacts artifacts: 'target/site/jacoco/**', allowEmptyArchive: true
+            }
+        }
+
+        stage('Docker image') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
+            steps {
+                // Versioned image of the tested WAR: <maven version>-<build number>-<commit>, e.g. 1.0.0-SNAPSHOT-12-7672792
+                powershell '''
+                    function Docker { & $env:DOCKER @args; if ($LASTEXITCODE -ne 0) { throw "docker $($args -join ' ') failed with exit code $LASTEXITCODE" } }
+                    $line = Select-String -Path 'target\\classes\\META-INF\\build-info.properties' -Pattern '^build\\.version=' | Select-Object -First 1
+                    $version = $line.Line.Substring('build.version='.Length)
+                    $commit = (git rev-parse --short=7 HEAD).Trim()
+                    $tag = "$version-$env:BUILD_NUMBER-$commit"
+                    $image = "${env:IMAGE_NAME}:${tag}"
+
+                    Docker build --progress=plain --build-arg "VERSION=$version" --build-arg "REVISION=$commit" `
+                        --label "jenkins.build=$env:BUILD_URL" -t $image -t "${env:IMAGE_NAME}:latest" .
+                    Docker push $image
+                    Docker push "${env:IMAGE_NAME}:latest"
+
+                    $digest = & $env:DOCKER inspect --format '{{index .RepoDigests 0}}' $image
+                    Write-Host "Published $image"
+                    Write-Host "Digest    $digest"
+                    $tags = Invoke-RestMethod "http://$env:REGISTRY/v2/event-feedback-dashboard/tags/list" -UseBasicParsing
+                    Write-Host "Registry $env:REGISTRY now holds: $($tags.tags -join ', ')"
+
+                    # hand the exact image to the deploy stage and keep it with the build
+                    Set-Content -Path 'target\\docker-image.txt' -Value $image -Encoding ascii
+                    Set-Content -Path 'target\\docker-image-digest.txt' -Value $digest -Encoding ascii
+                '''
+                archiveArtifacts artifacts: 'target/docker-image*.txt'
             }
         }
 
@@ -204,11 +247,60 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy container') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
+            steps {
+                withCredentials([string(credentialsId: 'efd-organiser-password', variable: 'SPRING_SECURITY_USER_PASSWORD')]) {
+                    powershell '''
+                        function Docker { & $env:DOCKER @args; if ($LASTEXITCODE -ne 0) { throw "docker $($args -join ' ') failed with exit code $LASTEXITCODE" } }
+                        $image = (Get-Content 'target\\docker-image.txt').Trim()
+                        $previous = & $env:DOCKER inspect --format '{{.Config.Image}}' $env:CONTAINER 2>$null
+                        Write-Host "Running before: $(if ($previous) { $previous } else { 'no container' })"
+
+                        # Deploy what the registry serves (not the local build cache), as a fresh container.
+                        # The database lives in the volume, so data survives the replacement.
+                        Docker pull $image
+                        & $env:DOCKER rm -f $env:CONTAINER 2>$null | Out-Null
+                        Docker run -d --name $env:CONTAINER --restart unless-stopped -p "$($env:CONTAINER_PORT):8080" --memory 512m `
+                            -e APP_ENVIRONMENT=docker -e SPRING_SECURITY_USER_PASSWORD -v efd-app-data:/data `
+                            --label "jenkins.build=$env:BUILD_NUMBER" $image
+
+                        # Smoke test: Docker health check, then the build time and environment the app reports
+                        $deadline = (Get-Date).AddMinutes(3)
+                        do {
+                            Start-Sleep -Seconds 5
+                            $health = & $env:DOCKER inspect --format '{{.State.Health.Status}}' $env:CONTAINER
+                            Write-Host "container health: $health"
+                        } until ($health -eq 'healthy' -or $health -eq 'unhealthy' -or (Get-Date) -gt $deadline)
+                        if ($health -ne 'healthy') { & $env:DOCKER logs --tail 40 $env:CONTAINER; throw "Container $env:CONTAINER is $health" }
+
+                        $base = "http://localhost:$env:CONTAINER_PORT"
+                        $line = Select-String -Path 'target\\classes\\META-INF\\build-info.properties' -Pattern '^build\\.time=' | Select-Object -First 1
+                        $expected = [DateTimeOffset]$line.Line.Substring('build.time='.Length).Replace('\\:', ':')
+                        $deployed = [DateTimeOffset](Invoke-RestMethod "$base/actuator/info" -UseBasicParsing).build.time
+                        if ($deployed -ne $expected) { throw "Container serves build $deployed, expected $expected" }
+                        $info = Invoke-RestMethod "$base/api/info" -UseBasicParsing
+                        if ($info.environment -ne 'docker') { throw "Expected environment docker but got $($info.environment)" }
+                        & $env:DOCKER ps --filter "name=$env:CONTAINER" --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+                        Write-Host "Container smoke test passed: build $($expected.ToString('o')), version $($info.version) at $base/"
+
+                        # Housekeeping: keep the five newest image tags locally (the registry keeps all of them)
+                        $old = & $env:DOCKER images $env:IMAGE_NAME --format '{{.Tag}}' | Where-Object { $_ -match '-(\\d+)-[0-9a-f]{7}$' } |
+                            Sort-Object { [int]($_ -replace '^.*-(\\d+)-[0-9a-f]{7}$', '$1') } -Descending | Select-Object -Skip 5
+                        foreach ($t in $old) { & $env:DOCKER rmi "${env:IMAGE_NAME}:${t}" | Out-Null }
+                    '''
+                }
+            }
+        }
     }
 
     post {
         success {
             echo "Deployed ${env.APP_CONTEXT} (${params.DEPLOY_ENV}): ${params.TOMCAT_URL}/${env.APP_CONTEXT}/"
+            echo "Container ${env.CONTAINER}: http://localhost:${params.CONTAINER_PORT}/ (image in ${params.REGISTRY})"
         }
         failure {
             echo 'Pipeline failed - deployment was skipped. See the test reports and archived Selenium screenshots.'

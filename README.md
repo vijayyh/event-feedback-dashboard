@@ -113,6 +113,17 @@ Validation errors return `400` with `fieldErrors`, e.g.
 Failed UI tests leave a screenshot and the page HTML in `target/selenium-screenshots/`.
 Test plan: [docs/09-selenium-test-plan.md](docs/09-selenium-test-plan.md).
 
+### Run with Docker
+
+```bash
+mvn -B clean verify
+docker build -t event-feedback-dashboard:1.0.0-SNAPSHOT .
+docker run -d --name efd -p 8088:8080 -e SPRING_SECURITY_USER_PASSWORD=<organiser password> -v efd-data:/data event-feedback-dashboard:1.0.0-SNAPSHOT
+```
+
+Open http://localhost:8088/. The image packages the tested WAR on a Java 21 runtime, runs as a non-root user and
+keeps the database in the `/data` volume. Details: [docs/11](docs/11-docker-image-and-container-lifecycle.md).
+
 ### Deploy to Tomcat 11
 
 Deployment is done by the Jenkins pipeline ([Jenkinsfile](Jenkinsfile)), not by hand. Every commit on `develop` is
@@ -164,6 +175,7 @@ event-feedback-dashboard/
 | 8 | [Pipeline as code and deployment to Tomcat](docs/08-pipeline-and-tomcat-deployment.md) |
 | 9 | [Selenium test design and local execution](docs/09-selenium-test-plan.md) |
 | 10 | [Continuous testing in Jenkins](docs/10-continuous-testing-in-jenkins.md) |
+| 11 | [Docker image and container lifecycle](docs/11-docker-image-and-container-lifecycle.md) |
 | – | [Presentation guide – how to run and demo](docs/presentation-guide.md) |
 
 ## Branching and contributions

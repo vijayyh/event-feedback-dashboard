@@ -1,0 +1,3 @@
+# The image only needs the tested WAR; keep the build context small and free of secrets
+*
+!target/event-feedback-dashboard.war

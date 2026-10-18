@@ -1,0 +1,15 @@
+# 2026-10-18 14:40:51 IST - state of the freshly provisioned node efd-node-1, before Ansible configures it
+PS> docker exec efd-node-1 bash /tmp/node-state.sh
+--- OS:               Ubuntu 24.04.5 LTS (6.6.87.2-microsoft-standard-WSL2)
+--- init (PID 1):     systemd
+--- java:             not installed
+--- service user efd: id: 'efd': no such user
+--- admin user:       uid=1001(ansible) gid=1001(ansible) groups=1001(ansible)
+--- folder /opt/efd: missing
+--- folder /etc/efd: missing
+--- folder /var/lib/efd: missing
+--- folder /var/log/efd: missing
+--- service efd:      inactive
+--- service ssh:      active
+--- listening ports:  0.0.0.0:22 [::]:22 
+--- packages:         145 installed

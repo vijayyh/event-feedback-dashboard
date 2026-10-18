@@ -1,0 +1,126 @@
+---
+# Deploys release <efd_release> next to the existing ones, switches "current" to it and checks its health.
+# If the health check fails, the previous release is reactivated automatically (rollback).
+
+- name: Look up the release that is active now
+  ansible.builtin.stat:
+    path: "{{ efd_current_link }}"
+  register: efd_current
+
+- name: Remember it as the previous release
+  ansible.builtin.set_fact:
+    efd_previous_release: "{{ (efd_current.stat.lnk_target | basename) if (efd_current.stat.islnk | default(false)) else '' }}"
+
+- name: Create the release folder {{ efd_release }}
+  ansible.builtin.file:
+    path: "{{ efd_releases_dir }}/{{ efd_release }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy the release WAR (archived by Jenkins)
+  ansible.builtin.copy:
+    src: "{{ efd_release_war }}"
+    dest: "{{ efd_releases_dir }}/{{ efd_release }}/app.war"
+    owner: root
+    group: "{{ efd_group }}"
+    mode: "0644"
+  register: efd_war
+
+- name: Write the settings that ship with this release
+  ansible.builtin.template:
+    src: release.properties.j2
+    dest: "{{ efd_releases_dir }}/{{ efd_release }}/release.properties"
+    owner: root
+    group: "{{ efd_group }}"
+    mode: "0644"
+  register: efd_release_props
+
+- name: Activate the release and check its health
+  block:
+    - name: Point {{ efd_current_link }} to {{ efd_release }}
+      ansible.builtin.file:
+        src: "{{ efd_releases_dir }}/{{ efd_release }}"
+        dest: "{{ efd_current_link }}"
+        state: link
+        force: true
+      register: efd_switch
+
+    - name: Restart the service because the release or its settings changed
+      ansible.builtin.systemd:
+        name: efd
+        state: restarted
+        enabled: true
+      when: >-
+        efd_switch is changed or efd_war is changed or efd_release_props is changed
+        or efd_env_file is changed or efd_unit_file is changed
+
+    - name: Make sure the service is enabled and running
+      ansible.builtin.systemd:
+        name: efd
+        state: started
+        enabled: true
+
+    - name: Health check {{ efd_health_url }}
+      ansible.builtin.uri:
+        url: "{{ efd_health_url }}"
+        return_content: true
+      register: efd_health
+      until: efd_health.status == 200 and efd_health.json.status == 'UP'
+      retries: "{{ efd_health_retries }}"
+      delay: 5
+
+    - name: Record the release that was active before (only after a healthy switch; used by rollback.yml)
+      ansible.builtin.copy:
+        dest: "{{ efd_install_dir }}/previous"
+        content: "{{ efd_previous_release }}\n"
+        owner: root
+        group: root
+        mode: "0644"
+      when: efd_switch is changed and efd_previous_release | length > 0
+
+  rescue:
+    - name: "ROLLBACK: {{ efd_release }} failed its health check, reactivating {{ efd_previous_release }}"
+      ansible.builtin.file:
+        src: "{{ efd_releases_dir }}/{{ efd_previous_release }}"
+        dest: "{{ efd_current_link }}"
+        state: link
+        force: true
+      when: efd_previous_release | length > 0 and efd_previous_release != efd_release
+
+    - name: "ROLLBACK: restart the service on {{ efd_previous_release }}"
+      ansible.builtin.systemd:
+        name: efd
+        state: restarted
+      when: efd_previous_release | length > 0 and efd_previous_release != efd_release
+
+    - name: "ROLLBACK: health check of {{ efd_previous_release }}"
+      ansible.builtin.uri:
+        url: "{{ efd_health_url }}"
+        return_content: true
+      register: efd_rollback_health
+      until: efd_rollback_health.status == 200 and efd_rollback_health.json.status == 'UP'
+      retries: "{{ efd_health_retries }}"
+      delay: 5
+      when: efd_previous_release | length > 0 and efd_previous_release != efd_release
+
+    - name: Report the failed deployment
+      ansible.builtin.fail:
+        msg: >-
+          Release {{ efd_release }} did not become healthy.
+          {{ ('Rolled back to ' ~ efd_previous_release ~ ', which is healthy again.')
+             if (efd_previous_release | length > 0 and efd_previous_release != efd_release)
+             else 'No previous release to roll back to.' }}
+
+- name: Read what the server runs now
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ efd_port }}/actuator/info"
+    return_content: true
+  register: efd_info
+
+- name: Show the active release
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }} runs {{ efd_release }} ({{ efd_info.json.build.version }},
+      built {{ efd_info.json.build.time }}): health {{ efd_health.json.status }} on port {{ efd_port }}

@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+# Settings that ship with release {{ efd_release }} (Spring Boot properties, empty for a normal release)
+{% for key, value in efd_release_settings | dictsort %}
+{{ key }}={{ value }}
+{% endfor %}

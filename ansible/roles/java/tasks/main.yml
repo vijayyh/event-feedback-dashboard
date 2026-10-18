@@ -1,0 +1,15 @@
+---
+# Java 21 runtime (the application is built for Java 21; no JDK or Maven needed on the server)
+- name: Install the Java 21 runtime
+  ansible.builtin.apt:
+    name: openjdk-21-jre-headless
+    state: present
+
+- name: Read the installed Java version
+  ansible.builtin.command: java -version
+  register: java_version
+  changed_when: false
+
+- name: Show the Java version
+  ansible.builtin.debug:
+    msg: "{{ java_version.stderr_lines[0] }}"

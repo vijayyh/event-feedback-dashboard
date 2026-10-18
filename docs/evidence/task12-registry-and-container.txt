@@ -1,0 +1,38 @@
+# 2026-10-18 15:00:10 IST - Task 12 evidence: local registry and the container deployed by EFD-Pipeline #14
+PS> curl.exe -s http://localhost:5000/v2/_catalog
+{"repositories":["event-feedback-dashboard"]}
+
+PS> curl.exe -s http://localhost:5000/v2/event-feedback-dashboard/tags/list
+{"name":"event-feedback-dashboard","tags":["1.0.0-SNAPSHOT-14-b4f921c","1.0.0-SNAPSHOT-12-9596f8f","1.0.0-SNAPSHOT-13-fe05edb","latest"]}
+
+PS> curl.exe -s -I -H "Accept: application/vnd.oci.image.index.v1+json" http://localhost:5000/v2/event-feedback-dashboard/manifests/1.0.0-SNAPSHOT-14-b4f921c | Select-String "Docker-Content-Digest|Content-Type"
+Content-Type: application/vnd.oci.image.index.v1+json
+Docker-Content-Digest: sha256:cf4f052ec6349ed9824cf0ed415327e35ae9aceada0d38302cf219c8a218fc04
+X-Content-Type-Options: nosniff
+
+PS> docker ps --filter name=efd- --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+NAMES          IMAGE                                                               STATUS                        PORTS
+efd-app        localhost:5000/event-feedback-dashboard:1.0.0-SNAPSHOT-14-b4f921c   Up About a minute (healthy)   0.0.0.0:8085->8080/tcp, [::]:8085->8080/tcp
+efd-node-1     efd-node-base:24.04                                                 Up 20 minutes                 0.0.0.0:8095->8095/tcp, [::]:8095->8095/tcp, 0.0.0.0:2222->22/tcp, [::]:2222->22/tcp
+efd-registry   registry:2                                                          Up 58 minutes                 0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+
+PS> docker inspect efd-app --format "{{.Config.Image}} | restart={{.HostConfig.RestartPolicy.Name}} | memory={{.HostConfig.Memory}} | health={{.State.Health.Status}} | started={{.State.StartedAt}}"
+localhost:5000/event-feedback-dashboard:1.0.0-SNAPSHOT-14-b4f921c | restart=unless-stopped | memory=536870912 | health=healthy | started=2026-10-18T09:29:10.130344196Z
+PS> docker inspect efd-app --format "{{json .Config.Labels}}"
+{"jenkins.build":"14","org.opencontainers.image.description":"Collects event feedback, shows ratings, indicators and alerts","org.opencontainers.image.revision":"b4f921c","org.opencontainers.image.source":"https://github.com/vijayyh/event-feedback-dashboard","org.opencontainers.image.title":"Event Feedback Dashboard","org.opencontainers.image.version":"1.0.0-SNAPSHOT"}
+PS> docker inspect efd-app --format "{{range .Mounts}}{{.Name}} -> {{.Destination}}{{end}}"
+efd-app-data -> /data
+
+PS> docker images localhost:5000/event-feedback-dashboard --format "table {{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.CreatedSince}}"
+REPOSITORY:TAG                                                      IMAGE ID       CREATED
+localhost:5000/event-feedback-dashboard:1.0.0-SNAPSHOT-14-b4f921c   cf4f052ec634   2 minutes ago
+localhost:5000/event-feedback-dashboard:latest                      cf4f052ec634   2 minutes ago
+localhost:5000/event-feedback-dashboard:1.0.0-SNAPSHOT-13-fe05edb   40e7fad8ff84   35 minutes ago
+localhost:5000/event-feedback-dashboard:1.0.0-SNAPSHOT-12-9596f8f   151e37f5caa1   45 minutes ago
+
+PS> curl.exe -s http://localhost:8085/api/info
+{"name":"Event Feedback Dashboard","version":"1.0.0-SNAPSHOT","environment":"docker","javaVersion":"21.0.12.1","serverTime":"2026-10-18T09:30:11.796735985Z"}
+
+PS> curl.exe -s http://localhost:8085/actuator/info
+{"build":{"artifact":"event-feedback-dashboard","name":"Event Feedback Dashboard","time":"2026-10-18T09:25:27.845Z","version":"1.0.0-SNAPSHOT","group":"com.eventfeedback"}}
+

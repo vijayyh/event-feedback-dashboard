@@ -38,6 +38,9 @@ pipeline {
         // production -> /event-feedback-dashboard, staging -> /event-feedback-dashboard-staging
         APP_CONTEXT = "${params.DEPLOY_ENV == 'production' ? 'event-feedback-dashboard' : 'event-feedback-dashboard-' + params.DEPLOY_ENV}"
         DOCKER      = 'C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe'
+        // parameters as explicit variables: Jenkins does not export a newly added parameter on its first run
+        DOCKER_REGISTRY = "${params.REGISTRY}"
+        APP_PORT        = "${params.CONTAINER_PORT}"
         IMAGE_NAME  = "${params.REGISTRY}/event-feedback-dashboard"
         CONTAINER   = 'efd-app'
     }
@@ -107,7 +110,7 @@ pipeline {
                 // Versioned image of the tested WAR: <maven version>-<build number>-<commit>, e.g. 1.0.0-SNAPSHOT-12-7672792
                 powershell '''
                     $env:PATH = "$(Split-Path $env:DOCKER);$env:PATH"   # docker.exe runs its credential helpers from the same folder
-                    function Docker { & $env:DOCKER @args; if ($LASTEXITCODE -ne 0) { throw "docker $($args -join ' ') failed with exit code $LASTEXITCODE" } }
+                    function Docker { & $env:DOCKER @args 2>&1 | ForEach-Object { "$_" }; if ($LASTEXITCODE -ne 0) { throw "docker $($args -join ' ') failed with exit code $LASTEXITCODE" } }
                     $line = Select-String -Path 'target\\classes\\META-INF\\build-info.properties' -Pattern '^build\\.version=' | Select-Object -First 1
                     $version = $line.Line.Substring('build.version='.Length)
                     $commit = (git rev-parse --short=7 HEAD).Trim()
@@ -122,8 +125,8 @@ pipeline {
                     $digest = & $env:DOCKER inspect --format '{{index .RepoDigests 0}}' $image
                     Write-Host "Published $image"
                     Write-Host "Digest    $digest"
-                    $tags = Invoke-RestMethod "http://$env:REGISTRY/v2/event-feedback-dashboard/tags/list" -UseBasicParsing
-                    Write-Host "Registry $env:REGISTRY now holds: $($tags.tags -join ', ')"
+                    $tags = Invoke-RestMethod "http://$env:DOCKER_REGISTRY/v2/event-feedback-dashboard/tags/list" -UseBasicParsing
+                    Write-Host "Registry $env:DOCKER_REGISTRY now holds: $($tags.tags -join ', ')"
 
                     # hand the exact image to the deploy stage and keep it with the build
                     Set-Content -Path 'target\\docker-image.txt' -Value $image -Encoding ascii
@@ -257,7 +260,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'efd-organiser-password', variable: 'SPRING_SECURITY_USER_PASSWORD')]) {
                     powershell '''
                         $env:PATH = "$(Split-Path $env:DOCKER);$env:PATH"   # docker.exe runs its credential helpers from the same folder
-                        function Docker { & $env:DOCKER @args; if ($LASTEXITCODE -ne 0) { throw "docker $($args -join ' ') failed with exit code $LASTEXITCODE" } }
+                        function Docker { & $env:DOCKER @args 2>&1 | ForEach-Object { "$_" }; if ($LASTEXITCODE -ne 0) { throw "docker $($args -join ' ') failed with exit code $LASTEXITCODE" } }
                         $image = (Get-Content 'target\\docker-image.txt').Trim()
                         $previous = & $env:DOCKER inspect --format '{{.Config.Image}}' $env:CONTAINER 2>$null
                         Write-Host "Running before: $(if ($previous) { $previous } else { 'no container' })"
@@ -266,7 +269,7 @@ pipeline {
                         # The database lives in the volume, so data survives the replacement.
                         Docker pull $image
                         & $env:DOCKER rm -f $env:CONTAINER 2>$null | Out-Null
-                        Docker run -d --name $env:CONTAINER --restart unless-stopped -p "$($env:CONTAINER_PORT):8080" --memory 512m `
+                        Docker run -d --name $env:CONTAINER --restart unless-stopped -p "$($env:APP_PORT):8080" --memory 512m `
                             -e APP_ENVIRONMENT=docker -e SPRING_SECURITY_USER_PASSWORD -v efd-app-data:/data `
                             --label "jenkins.build=$env:BUILD_NUMBER" $image
 
@@ -279,7 +282,7 @@ pipeline {
                         } until ($health -eq 'healthy' -or $health -eq 'unhealthy' -or (Get-Date) -gt $deadline)
                         if ($health -ne 'healthy') { & $env:DOCKER logs --tail 40 $env:CONTAINER; throw "Container $env:CONTAINER is $health" }
 
-                        $base = "http://localhost:$env:CONTAINER_PORT"
+                        $base = "http://localhost:$env:APP_PORT"
                         $line = Select-String -Path 'target\\classes\\META-INF\\build-info.properties' -Pattern '^build\\.time=' | Select-Object -First 1
                         $expected = [DateTimeOffset]$line.Line.Substring('build.time='.Length).Replace('\\:', ':')
                         $deployed = [DateTimeOffset](Invoke-RestMethod "$base/actuator/info" -UseBasicParsing).build.time

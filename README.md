@@ -195,6 +195,7 @@ event-feedback-dashboard/
 | 9 | [Selenium test design and local execution](docs/09-selenium-test-plan.md) |
 | 10 | [Continuous testing in Jenkins](docs/10-continuous-testing-in-jenkins.md) |
 | 11 | [Docker image and container lifecycle](docs/11-docker-image-and-container-lifecycle.md) |
+| 12 | [Jenkins–Docker continuous deployment](docs/12-jenkins-docker-continuous-deployment.md) |
 | 13 | [Configuration management with Ansible](docs/13-configuration-management-ansible.md) |
 | 14 | [Automated provisioning and reliability validation](docs/14-provisioning-and-reliability.md) |
 | – | [Presentation guide – how to run and demo](docs/presentation-guide.md) |

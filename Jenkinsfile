@@ -106,6 +106,7 @@ pipeline {
             steps {
                 // Versioned image of the tested WAR: <maven version>-<build number>-<commit>, e.g. 1.0.0-SNAPSHOT-12-7672792
                 powershell '''
+                    $env:PATH = "$(Split-Path $env:DOCKER);$env:PATH"   # docker.exe runs its credential helpers from the same folder
                     function Docker { & $env:DOCKER @args; if ($LASTEXITCODE -ne 0) { throw "docker $($args -join ' ') failed with exit code $LASTEXITCODE" } }
                     $line = Select-String -Path 'target\\classes\\META-INF\\build-info.properties' -Pattern '^build\\.version=' | Select-Object -First 1
                     $version = $line.Line.Substring('build.version='.Length)
@@ -255,6 +256,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'efd-organiser-password', variable: 'SPRING_SECURITY_USER_PASSWORD')]) {
                     powershell '''
+                        $env:PATH = "$(Split-Path $env:DOCKER);$env:PATH"   # docker.exe runs its credential helpers from the same folder
                         function Docker { & $env:DOCKER @args; if ($LASTEXITCODE -ne 0) { throw "docker $($args -join ' ') failed with exit code $LASTEXITCODE" } }
                         $image = (Get-Content 'target\\docker-image.txt').Trim()
                         $previous = & $env:DOCKER inspect --format '{{.Config.Image}}' $env:CONTAINER 2>$null

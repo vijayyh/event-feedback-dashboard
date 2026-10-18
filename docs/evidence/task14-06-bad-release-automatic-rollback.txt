@@ -1,0 +1,120 @@
+# 2026-10-18 14:44:38 IST ansible-playbook site.yml -e @releases/bad-release.yml (ansible-core 2.16.3, control node LAPTOP-L9RJD6BM)
+
+PLAY [Configure Event Feedback Dashboard servers] ******************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [efd-node-1]
+
+TASK [common : Update the package index (at most once an hour)] ****************
+ok: [efd-node-1]
+
+TASK [common : Install base packages] ******************************************
+ok: [efd-node-1]
+
+TASK [java : Install the Java 21 runtime] **************************************
+ok: [efd-node-1]
+
+TASK [java : Read the installed Java version] **********************************
+ok: [efd-node-1]
+
+TASK [java : Show the Java version] ********************************************
+ok: [efd-node-1] => 
+    msg: openjdk version "21.0.12.1" 2026-08-18
+
+TASK [efd_app : Create the service group] **************************************
+ok: [efd-node-1]
+
+TASK [efd_app : Create the service user (no login shell, no password)] *********
+ok: [efd-node-1]
+
+TASK [efd_app : Create the application folders] ********************************
+ok: [efd-node-1] => (item=/opt/efd)
+ok: [efd-node-1] => (item=/opt/efd/releases)
+ok: [efd-node-1] => (item=/etc/efd)
+ok: [efd-node-1] => (item=/var/lib/efd)
+ok: [efd-node-1] => (item=/var/log/efd)
+
+TASK [efd_app : Check that the organiser password was provided] ****************
+ok: [efd-node-1]
+
+TASK [efd_app : Write the settings shared by every release (environment file, readable by the service only)] ***
+ok: [efd-node-1]
+
+TASK [efd_app : Install the systemd service] ***********************************
+ok: [efd-node-1]
+
+TASK [efd_app : Reload systemd after a unit change] ****************************
+skipping: [efd-node-1]
+
+TASK [efd_app : Rotate the application log daily, keep 14 days] ****************
+ok: [efd-node-1]
+
+TASK [efd_app : Look up the release that is active now] ************************
+ok: [efd-node-1]
+
+TASK [efd_app : Remember it as the previous release] ***************************
+ok: [efd-node-1]
+
+TASK [efd_app : Create the release folder build-13-bad-db] *********************
+changed: [efd-node-1]
+
+TASK [efd_app : Copy the release WAR (archived by Jenkins)] ********************
+changed: [efd-node-1]
+
+TASK [efd_app : Write the settings that ship with this release] ****************
+changed: [efd-node-1]
+
+TASK [efd_app : Point /opt/efd/current to build-13-bad-db] *********************
+changed: [efd-node-1]
+
+TASK [efd_app : Restart the service because the release or its settings changed] ***
+changed: [efd-node-1]
+
+TASK [efd_app : Make sure the service is enabled and running] ******************
+ok: [efd-node-1]
+
+TASK [efd_app : Health check http://127.0.0.1:8095/actuator/health] ************
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (12 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (11 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (10 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (9 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (8 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (7 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (6 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (5 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (4 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (3 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (2 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check http://127.0.0.1:8095/actuator/health (1 retries left).
+fatal: [efd-node-1]: FAILED! => 
+    attempts: 12
+    changed: false
+    content: ''
+    elapsed: 0
+    msg: 'Status code was -1 and not [200]: Request failed: <urlopen error [Errno 111]
+        Connection refused>'
+    redirected: false
+    status: -1
+    url: http://127.0.0.1:8095/actuator/health
+
+TASK [efd_app : ROLLBACK: build-13-bad-db failed its health check, reactivating build-13] ***
+changed: [efd-node-1]
+
+TASK [efd_app : ROLLBACK: restart the service on build-13] *********************
+changed: [efd-node-1]
+
+TASK [efd_app : ROLLBACK: health check of build-13] ****************************
+FAILED - RETRYING: [efd-node-1]: ROLLBACK: health check of build-13 (12 retries left).
+FAILED - RETRYING: [efd-node-1]: ROLLBACK: health check of build-13 (11 retries left).
+FAILED - RETRYING: [efd-node-1]: ROLLBACK: health check of build-13 (10 retries left).
+ok: [efd-node-1]
+
+TASK [efd_app : Report the failed deployment] **********************************
+fatal: [efd-node-1]: FAILED! => 
+    changed: false
+    msg: Release build-13-bad-db did not become healthy. Rolled back to build-13, which
+        is healthy again.
+
+PLAY RECAP *********************************************************************
+efd-node-1                 : ok=24   changed=7    unreachable=0    failed=1    skipped=1    rescued=1    ignored=0   
+

@@ -124,6 +124,25 @@ docker run -d --name efd -p 8088:8080 -e SPRING_SECURITY_USER_PASSWORD=<organise
 Open http://localhost:8088/. The image packages the tested WAR on a Java 21 runtime, runs as a non-root user and
 keeps the database in the `/data` volume. Details: [docs/11](docs/11-docker-image-and-container-lifecycle.md).
 
+### Configure a server with Ansible
+
+The [`ansible/`](ansible) folder configures an Ubuntu 24.04 server for the application:
+- Java 21;
+- the `efd` service user, folders and settings;
+- the `efd` systemd service on port 8095;
+- release deployment with a health check and automatic rollback.
+
+From Windows (Ansible runs in Ubuntu on WSL):
+
+```powershell
+.\ansible\run.ps1 provision.yml -Options '-e','fresh=true'   # create a clean node
+.\ansible\run.ps1 site.yml                                    # configure it and deploy the release
+.\ansible\run.ps1 health.yml                                  # health check
+.\ansible\run.ps1 rollback.yml                                # back to the previous release
+```
+
+Details: [docs/13](docs/13-configuration-management-ansible.md) and [docs/14](docs/14-provisioning-and-reliability.md).
+
 ### Deploy to Tomcat 11
 
 Deployment is done by the Jenkins pipeline ([Jenkinsfile](Jenkinsfile)), not by hand. Every commit on `develop` is
@@ -176,6 +195,8 @@ event-feedback-dashboard/
 | 9 | [Selenium test design and local execution](docs/09-selenium-test-plan.md) |
 | 10 | [Continuous testing in Jenkins](docs/10-continuous-testing-in-jenkins.md) |
 | 11 | [Docker image and container lifecycle](docs/11-docker-image-and-container-lifecycle.md) |
+| 13 | [Configuration management with Ansible](docs/13-configuration-management-ansible.md) |
+| 14 | [Automated provisioning and reliability validation](docs/14-provisioning-and-reliability.md) |
 | – | [Presentation guide – how to run and demo](docs/presentation-guide.md) |
 
 ## Branching and contributions

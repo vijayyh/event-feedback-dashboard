@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Event Feedback Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User={{ efd_user }}
+Group={{ efd_group }}
+EnvironmentFile={{ efd_config_dir }}/efd.env
+WorkingDirectory={{ efd_data_dir }}
+ExecStart=/usr/bin/java $JAVA_OPTS -jar {{ efd_current_link }}/app.war --spring.config.additional-location=optional:file:{{ efd_current_link }}/release.properties
+# 143 = stopped by SIGTERM, a normal shutdown for a Java process
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:{{ efd_log_dir }}/efd.log
+StandardError=append:{{ efd_log_dir }}/efd.log
+
+[Install]
+WantedBy=multi-user.target

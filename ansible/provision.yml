@@ -1,0 +1,125 @@
+---
+# Provisions a clean target node for the Event Feedback Dashboard.
+#
+# The node is a bare Ubuntu 24.04 server (systemd + SSH + Python, see node/Dockerfile) running as a container
+# on the local Docker engine. With -e fresh=true an existing node is destroyed first, so the next site.yml run
+# starts from a completely clean machine.
+#
+#   ansible-playbook provision.yml [-e fresh=true]
+- name: Provision a clean target node
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    docker: /mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe   # Docker Desktop CLI via WSL interop
+    node_name: efd-node-1
+    node_image: efd-node-base:24.04
+    node_ssh_port: 2222
+    node_app_port: 8095
+    key_file: "{{ lookup('ansible.builtin.env', 'HOME') }}/.ssh/efd_node_ed25519"
+    fresh: false
+  tasks:
+    - name: Create the control node's SSH key pair (once)
+      ansible.builtin.command:
+        argv: [ssh-keygen, -q, -t, ed25519, -N, "", -C, ansible@efd-control, -f, "{{ key_file }}"]
+        creates: "{{ key_file }}"
+
+    - name: Look up the node image before the build
+      ansible.builtin.command:
+        argv: ["{{ docker }}", image, inspect, -f, !unsafe '{{.Id}}', "{{ node_image }}"]
+      register: image_before
+      changed_when: false
+      failed_when: false
+
+    - name: Build the clean node image (bare Ubuntu 24.04 server)
+      ansible.builtin.command:
+        # --provenance=false: no build-time attestation, so a cached rebuild gives the same image ID
+        argv: ["{{ docker }}", build, -q, --provenance=false, -t, "{{ node_image }}", "{{ lookup('ansible.builtin.pipe', 'wslpath -w ' ~ playbook_dir ~ '/node') }}"]
+      register: image_build
+      # changed only when the build produced a different image (layer cache hit = same ID)
+      changed_when: (image_build.stdout | trim) != (image_before.stdout | trim)
+
+    - name: Destroy the existing node (fresh=true)
+      ansible.builtin.command:
+        argv: ["{{ docker }}", rm, -f, "{{ node_name }}"]
+      register: node_removed
+      changed_when: node_name in node_removed.stdout
+      failed_when: false
+      when: fresh | bool
+
+    - name: Check whether the node is running
+      ansible.builtin.command:
+        argv: ["{{ docker }}", inspect, -f, !unsafe '{{.State.Running}}', "{{ node_name }}"]
+      register: node_state
+      changed_when: false
+      failed_when: false
+
+    - name: Start a new node container from the clean image
+      ansible.builtin.command:
+        argv:
+          - "{{ docker }}"
+          - run
+          - -d
+          - --name
+          - "{{ node_name }}"
+          - --hostname
+          - "{{ node_name }}"
+          - --privileged                       # systemd as PID 1 needs to manage cgroups
+          - --cgroupns=host
+          - -v
+          - /sys/fs/cgroup:/sys/fs/cgroup:rw
+          - --tmpfs
+          - /run
+          - --tmpfs
+          - /run/lock
+          - --memory
+          - 1g
+          - -p
+          - "{{ node_ssh_port }}:22"
+          - -p
+          - "{{ node_app_port }}:8095"
+          - "{{ node_image }}"
+      when: node_state.rc != 0
+
+    - name: Start the stopped node container
+      ansible.builtin.command:
+        argv: ["{{ docker }}", start, "{{ node_name }}"]
+      when: node_state.rc == 0 and node_state.stdout | trim == 'false'
+
+    - name: Read the keys the node accepts
+      ansible.builtin.command:
+        argv: ["{{ docker }}", exec, "{{ node_name }}", cat, /home/ansible/.ssh/authorized_keys]
+      register: node_keys
+      changed_when: false
+      failed_when: false
+
+    - name: Authorise the control node's public key for the ansible account
+      ansible.builtin.command:
+        argv:
+          - "{{ docker }}"
+          - exec
+          - -i
+          - "{{ node_name }}"
+          - sh
+          - -c
+          - cat > /home/ansible/.ssh/authorized_keys && chown ansible:ansible /home/ansible/.ssh/authorized_keys && chmod 600 /home/ansible/.ssh/authorized_keys
+        stdin: "{{ lookup('ansible.builtin.file', key_file ~ '.pub') }}"
+      when: lookup('ansible.builtin.file', key_file ~ '.pub') not in node_keys.stdout
+
+    - name: Wait until the node accepts SSH connections
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: "{{ node_ssh_port }}"
+        search_regex: OpenSSH
+        timeout: 90
+
+- name: Check that Ansible can manage the node
+  hosts: efd_servers
+  gather_facts: true
+  tasks:
+    - name: Show the node
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }}: {{ ansible_distribution }} {{ ansible_distribution_version }},
+          kernel {{ ansible_kernel }}, {{ ansible_memtotal_mb }} MB RAM, {{ ansible_processor_vcpus }} vCPU,
+          init system {{ ansible_service_mgr }}, Python {{ ansible_python_version }}

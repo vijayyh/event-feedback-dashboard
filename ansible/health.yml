@@ -1,0 +1,55 @@
+---
+# Health check of every Event Feedback Dashboard server: service state, listening ports, health endpoint,
+# running build and environment. Fails if anything is not as expected. Changes nothing.
+#
+#   ansible-playbook health.yml
+- name: Health check of Event Feedback Dashboard servers
+  hosts: efd_servers
+  become: true
+  gather_facts: false
+  vars:
+    efd_port: 8095
+  tasks:
+    - name: Service state
+      ansible.builtin.command: systemctl is-active efd
+      register: service_state
+      changed_when: false
+      failed_when: service_state.stdout != 'active'
+
+    - name: Listening ports
+      ansible.builtin.shell: ss -ltn | awk 'NR > 1 { print $4 }' | sort -u
+      register: ports
+      changed_when: false
+
+    - name: Health endpoint
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ efd_port }}/actuator/health"
+        return_content: true
+      register: health
+      failed_when: health.json.status != 'UP'
+
+    - name: Build information
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ efd_port }}/actuator/info"
+        return_content: true
+      register: info
+
+    - name: Application information
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ efd_port }}/api/info"
+        return_content: true
+      register: app
+
+    - name: Active release
+      ansible.builtin.stat:
+        path: /opt/efd/current
+      register: current
+
+    - name: Result
+      ansible.builtin.debug:
+        msg:
+          - "service efd: {{ service_state.stdout }}"
+          - "listening: {{ ports.stdout_lines | join(', ') }}"
+          - "health: {{ health.json.status }} (db {{ health.json.components.db.status }}, disk {{ health.json.components.diskSpace.status }})"
+          - "release: {{ current.stat.lnk_target | basename }} = {{ info.json.build.version }} built {{ info.json.build.time }}"
+          - "environment: {{ app.json.environment }}, Java {{ app.json.javaVersion }}"

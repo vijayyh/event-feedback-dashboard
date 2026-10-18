@@ -1,0 +1,76 @@
+---
+- name: Create the service group
+  ansible.builtin.group:
+    name: "{{ efd_group }}"
+    system: true
+
+- name: Create the service user (no login shell, no password)
+  ansible.builtin.user:
+    name: "{{ efd_user }}"
+    group: "{{ efd_group }}"
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ efd_data_dir }}"
+    create_home: false
+
+- name: Create the application folders
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ efd_install_dir }}", owner: root, group: root, mode: "0755" }
+    - { path: "{{ efd_releases_dir }}", owner: root, group: root, mode: "0755" }
+    - { path: "{{ efd_config_dir }}", owner: root, group: "{{ efd_group }}", mode: "0750" }
+    - { path: "{{ efd_data_dir }}", owner: "{{ efd_user }}", group: "{{ efd_group }}", mode: "0750" }
+    - { path: "{{ efd_log_dir }}", owner: "{{ efd_user }}", group: "{{ efd_group }}", mode: "0750" }
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Check that the organiser password was provided
+  ansible.builtin.assert:
+    that: efd_organiser_password | length > 0
+    fail_msg: Set the environment variable EFD_ORGANISER_PASSWORD on the control node.
+    quiet: true
+
+- name: Write the settings shared by every release (environment file, readable by the service only)
+  ansible.builtin.template:
+    src: efd.env.j2
+    dest: "{{ efd_config_dir }}/efd.env"
+    owner: root
+    group: "{{ efd_group }}"
+    mode: "0640"
+  register: efd_env_file
+  no_log: true
+
+- name: Install the systemd service
+  ansible.builtin.template:
+    src: efd.service.j2
+    dest: /etc/systemd/system/efd.service
+    owner: root
+    group: root
+    mode: "0644"
+  register: efd_unit_file
+
+- name: Reload systemd after a unit change
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: efd_unit_file is changed
+
+- name: Rotate the application log daily, keep 14 days
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/efd
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      {{ efd_log_dir }}/*.log {
+          daily
+          rotate 14
+          compress
+          missingok
+          notifempty
+          copytruncate
+      }

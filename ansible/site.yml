@@ -1,0 +1,14 @@
+---
+# Configures Event Feedback Dashboard servers and deploys a release.
+#
+#   ansible-playbook site.yml                                  # release from Jenkins build efd_release_build
+#   ansible-playbook site.yml -e efd_release_build=11          # another archived build
+#
+# Safe to run again at any time: a second run on a configured server changes nothing (idempotent).
+- name: Configure Event Feedback Dashboard servers
+  hosts: efd_servers
+  become: true
+  roles:
+    - common
+    - java
+    - efd_app

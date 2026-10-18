@@ -1,0 +1,6 @@
+---
+- name: Server setup (user, folders, configuration, service)
+  ansible.builtin.import_tasks: setup.yml
+
+- name: Release deployment with health check and automatic rollback
+  ansible.builtin.import_tasks: deploy.yml

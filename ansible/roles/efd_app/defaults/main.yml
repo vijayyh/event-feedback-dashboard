@@ -1,0 +1,30 @@
+---
+# Service account
+efd_user: efd
+efd_group: efd
+
+# Folders
+efd_install_dir: /opt/efd                    # releases and the "current" link
+efd_releases_dir: "{{ efd_install_dir }}/releases"
+efd_current_link: "{{ efd_install_dir }}/current"
+efd_config_dir: /etc/efd                     # settings shared by all releases (incl. the password)
+efd_data_dir: /var/lib/efd                   # H2 database
+efd_log_dir: /var/log/efd                    # application log
+
+# Application
+efd_environment: node
+efd_port: 8095
+efd_java_opts: "-Xms128m -Xmx384m"
+efd_organiser_password: ""
+
+# Release to deploy. A release is an immutable folder <efd_releases_dir>/<efd_release> with the WAR and the
+# settings that ship with it; "current" points to the active one, so a rollback is a link switch.
+efd_jenkins_archive: /mnt/c/ProgramData/Jenkins/.jenkins/jobs/EFD-Pipeline/builds
+efd_release_build: 0
+efd_release: "build-{{ efd_release_build }}"
+efd_release_war: "{{ efd_jenkins_archive }}/{{ efd_release_build }}/archive/target/event-feedback-dashboard.war"
+efd_release_settings: {}                     # extra Spring properties that ship with this release
+
+# Health check after every (re)start
+efd_health_url: "http://127.0.0.1:{{ efd_port }}/actuator/health"
+efd_health_retries: 24                       # x 5 s = 2 minutes

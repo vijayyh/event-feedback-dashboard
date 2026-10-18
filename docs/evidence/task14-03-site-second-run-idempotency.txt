@@ -1,0 +1,92 @@
+# 2026-10-18 14:43:03 IST ansible-playbook site.yml -e efd_release_build=11 (ansible-core 2.16.3, control node LAPTOP-L9RJD6BM)
+
+PLAY [Configure Event Feedback Dashboard servers] ******************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [efd-node-1]
+
+TASK [common : Update the package index (at most once an hour)] ****************
+ok: [efd-node-1]
+
+TASK [common : Install base packages] ******************************************
+ok: [efd-node-1]
+
+TASK [java : Install the Java 21 runtime] **************************************
+ok: [efd-node-1]
+
+TASK [java : Read the installed Java version] **********************************
+ok: [efd-node-1]
+
+TASK [java : Show the Java version] ********************************************
+ok: [efd-node-1] => 
+    msg: openjdk version "21.0.12.1" 2026-08-18
+
+TASK [efd_app : Create the service group] **************************************
+ok: [efd-node-1]
+
+TASK [efd_app : Create the service user (no login shell, no password)] *********
+ok: [efd-node-1]
+
+TASK [efd_app : Create the application folders] ********************************
+ok: [efd-node-1] => (item=/opt/efd)
+ok: [efd-node-1] => (item=/opt/efd/releases)
+ok: [efd-node-1] => (item=/etc/efd)
+ok: [efd-node-1] => (item=/var/lib/efd)
+ok: [efd-node-1] => (item=/var/log/efd)
+
+TASK [efd_app : Check that the organiser password was provided] ****************
+ok: [efd-node-1]
+
+TASK [efd_app : Write the settings shared by every release (environment file, readable by the service only)] ***
+ok: [efd-node-1]
+
+TASK [efd_app : Install the systemd service] ***********************************
+ok: [efd-node-1]
+
+TASK [efd_app : Reload systemd after a unit change] ****************************
+skipping: [efd-node-1]
+
+TASK [efd_app : Rotate the application log daily, keep 14 days] ****************
+ok: [efd-node-1]
+
+TASK [efd_app : Look up the release that is active now] ************************
+ok: [efd-node-1]
+
+TASK [efd_app : Remember it as the previous release] ***************************
+ok: [efd-node-1]
+
+TASK [efd_app : Create the release folder build-11] ****************************
+ok: [efd-node-1]
+
+TASK [efd_app : Copy the release WAR (archived by Jenkins)] ********************
+ok: [efd-node-1]
+
+TASK [efd_app : Write the settings that ship with this release] ****************
+ok: [efd-node-1]
+
+TASK [efd_app : Point /opt/efd/current to build-11] ****************************
+ok: [efd-node-1]
+
+TASK [efd_app : Restart the service because the release or its settings changed] ***
+skipping: [efd-node-1]
+
+TASK [efd_app : Make sure the service is enabled and running] ******************
+ok: [efd-node-1]
+
+TASK [efd_app : Health check http://127.0.0.1:8095/actuator/health] ************
+ok: [efd-node-1]
+
+TASK [efd_app : Record the release that was active before (only after a healthy switch; used by rollback.yml)] ***
+skipping: [efd-node-1]
+
+TASK [efd_app : Read what the server runs now] *********************************
+ok: [efd-node-1]
+
+TASK [efd_app : Show the active release] ***************************************
+ok: [efd-node-1] => 
+    msg: 'efd-node-1 runs build-11 (1.0.0-SNAPSHOT, built 2026-10-18T08:34:07.736Z): health
+        UP on port 8095'
+
+PLAY RECAP *********************************************************************
+efd-node-1                 : ok=23   changed=0    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0   
+

@@ -1,0 +1,68 @@
+---
+# Manual rollback: reactivates the release that was active before the current one
+# (recorded in /opt/efd/previous by every successful switch), restarts the service and checks its health.
+#
+#   ansible-playbook rollback.yml                              # back to the previous release
+#   ansible-playbook rollback.yml -e efd_rollback_to=build-11  # or to a named release
+- name: Roll back the Event Feedback Dashboard
+  hosts: efd_servers
+  become: true
+  vars:
+    efd_install_dir: /opt/efd
+    efd_port: 8095
+  tasks:
+    - name: Read the active release
+      ansible.builtin.stat:
+        path: "{{ efd_install_dir }}/current"
+      register: current
+
+    - name: Read the previous release
+      ansible.builtin.slurp:
+        src: "{{ efd_install_dir }}/previous"
+      register: previous
+      when: efd_rollback_to is not defined
+
+    - name: Choose the release to go back to
+      ansible.builtin.set_fact:
+        target: "{{ efd_rollback_to | default((previous.content | b64decode).strip()) }}"
+        active: "{{ current.stat.lnk_target | basename }}"
+
+    - name: Check that the release exists
+      ansible.builtin.stat:
+        path: "{{ efd_install_dir }}/releases/{{ target }}/app.war"
+      register: target_war
+      failed_when: not target_war.stat.exists
+
+    - name: Switch current from {{ active }} to {{ target }}
+      ansible.builtin.file:
+        src: "{{ efd_install_dir }}/releases/{{ target }}"
+        dest: "{{ efd_install_dir }}/current"
+        state: link
+        force: true
+      register: switched
+
+    - name: Remember {{ active }} as the previous release
+      ansible.builtin.copy:
+        dest: "{{ efd_install_dir }}/previous"
+        content: "{{ active }}\n"
+        mode: "0644"
+      when: switched is changed
+
+    - name: Restart the service
+      ansible.builtin.systemd:
+        name: efd
+        state: restarted
+      when: switched is changed
+
+    - name: Health check
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ efd_port }}/actuator/health"
+        return_content: true
+      register: health
+      until: health.status == 200 and health.json.status == 'UP'
+      retries: 24
+      delay: 5
+
+    - name: Result
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }} runs {{ target }} again (was {{ active }}): health {{ health.json.status }}"

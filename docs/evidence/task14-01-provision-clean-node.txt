@@ -1,0 +1,48 @@
+# 2026-10-18 14:39:53 IST ansible-playbook provision.yml -e fresh=true (ansible-core 2.16.3, control node LAPTOP-L9RJD6BM)
+
+PLAY [Provision a clean target node] *******************************************
+
+TASK [Create the control node's SSH key pair (once)] ***************************
+ok: [localhost]
+
+TASK [Look up the node image before the build] *********************************
+ok: [localhost]
+
+TASK [Build the clean node image (bare Ubuntu 24.04 server)] *******************
+ok: [localhost]
+
+TASK [Destroy the existing node (fresh=true)] **********************************
+changed: [localhost]
+
+TASK [Check whether the node is running] ***************************************
+ok: [localhost]
+
+TASK [Start a new node container from the clean image] *************************
+changed: [localhost]
+
+TASK [Start the stopped node container] ****************************************
+skipping: [localhost]
+
+TASK [Read the keys the node accepts] ******************************************
+ok: [localhost]
+
+TASK [Authorise the control node's public key for the ansible account] *********
+changed: [localhost]
+
+TASK [Wait until the node accepts SSH connections] *****************************
+ok: [localhost]
+
+PLAY [Check that Ansible can manage the node] **********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [efd-node-1]
+
+TASK [Show the node] ***********************************************************
+ok: [efd-node-1] => 
+    msg: 'efd-node-1: Ubuntu 24.04, kernel 6.6.87.2-microsoft-standard-WSL2, 2909 MB RAM,
+        2 vCPU, init system systemd, Python 3.12.3'
+
+PLAY RECAP *********************************************************************
+efd-node-1                 : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+localhost                  : ok=9    changed=3    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+

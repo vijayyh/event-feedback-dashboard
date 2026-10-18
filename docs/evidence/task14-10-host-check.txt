@@ -1,0 +1,9 @@
+# 2026-10-18 14:48:52 IST - the application on efd-node-1, checked from the Windows host (published port 8095)
+PS> curl.exe -s http://localhost:8095/actuator/health
+{"status":"UP","components":{"db":{"status":"UP","details":{"database":"H2","validationQuery":"isValid()"}},"diskSpace":{"status":"UP","details":{"total":1081101176832,"free":1021581971456,"threshold":10485760,"path":"/var/lib/efd/.","exists":true}},"ping":{"status":"UP"},"ssl":{"status":"UP","details":{"validChains":[],"invalidChains":[]}}}}
+PS> curl.exe -s http://localhost:8095/api/info
+{"name":"Event Feedback Dashboard","version":"1.0.0-SNAPSHOT","environment":"node","javaVersion":"21.0.12.1","serverTime":"2026-10-18T09:18:52.393403706Z"}
+PS> curl.exe -s http://localhost:8095/actuator/info
+{"build":{"artifact":"event-feedback-dashboard","name":"Event Feedback Dashboard","time":"2026-10-18T08:52:33.961Z","version":"1.0.0-SNAPSHOT","group":"com.eventfeedback"}}
+PS> curl.exe -s -o NUL -w "home page: HTTP %{http_code}, %{content_type}" http://localhost:8095/
+home page: HTTP 200, text/html;charset=UTF-8

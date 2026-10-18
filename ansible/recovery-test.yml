@@ -1,0 +1,47 @@
+---
+# Recovery test: simulates a crash of the application (SIGKILL, like an out-of-memory kill) and checks that
+# systemd restarts it on its own (Restart=on-failure in efd.service) and that it becomes healthy again.
+#
+#   ansible-playbook recovery-test.yml
+- name: Recovery test - the service comes back after a crash
+  hosts: efd_servers
+  become: true
+  gather_facts: false
+  vars:
+    efd_port: 8095
+  tasks:
+    - name: Process before the crash
+      ansible.builtin.command: systemctl show -p MainPID -p NRestarts --value efd
+      register: before
+      changed_when: false
+
+    - name: Simulate a crash (SIGKILL to the Java process {{ before.stdout_lines[0] }})
+      ansible.builtin.command: kill -9 {{ before.stdout_lines[0] }}
+
+    - name: The application is down right after the crash
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ efd_port }}/actuator/health"
+        timeout: 3
+      register: down
+      failed_when: false
+
+    - name: Wait until systemd has restarted the service and it is healthy again
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ efd_port }}/actuator/health"
+        return_content: true
+      register: health
+      until: health.status == 200 and health.json.status == 'UP'
+      retries: 24
+      delay: 5
+
+    - name: Process after the recovery
+      ansible.builtin.command: systemctl show -p MainPID -p NRestarts --value efd
+      register: after
+      changed_when: false
+
+    - name: Result
+      ansible.builtin.debug:
+        msg:
+          - "before: PID {{ before.stdout_lines[0] }}, restarts {{ before.stdout_lines[1] }}"
+          - "right after SIGKILL: HTTP {{ down.status }} ({{ 'down' if down.status != 200 else 'still up' }})"
+          - "after:  PID {{ after.stdout_lines[0] }}, restarts {{ after.stdout_lines[1] }}, health {{ health.json.status }}"

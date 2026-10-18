@@ -1,0 +1,10 @@
+# DELIBERATELY BROKEN RELEASE - used only to test the automatic rollback (Task 14).
+# Same WAR as build 13, but it ships with a wrong database URL, so the application cannot start and the
+# health check fails. deploy.yml must then reactivate the previous release on its own.
+#
+#   ansible-playbook site.yml -e @releases/bad-release.yml
+efd_release_build: 13
+efd_release: build-13-bad-db
+efd_release_settings:
+  spring.datasource.url: jdbc:h2:tcp://db.invalid:9092/efd
+efd_health_retries: 12          # 1 minute is enough to show the failure

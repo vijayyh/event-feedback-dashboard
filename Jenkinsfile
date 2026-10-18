@@ -174,13 +174,23 @@ pipeline {
                 powershell '''
                     $ErrorActionPreference = 'Stop'
                     $base = "$env:TOMCAT_URL/$env:APP_CONTEXT"
+
+                    # Tomcat picks up the new WAR a few seconds after the copy, so the previous version may still
+                    # answer. Wait until the server reports the build time of the WAR built in this run.
+                    $line = Select-String -Path 'target\\classes\\META-INF\\build-info.properties' -Pattern '^build\\.time=' | Select-Object -First 1
+                    $expected = [DateTimeOffset]$line.Line.Substring('build.time='.Length).Replace('\\:', ':')
+                    Write-Host "Waiting for build $($expected.ToString('o')) at $base"
                     $deadline = (Get-Date).AddMinutes(3)
                     do {
                         Start-Sleep -Seconds 5
-                        try { $health = Invoke-RestMethod "$base/actuator/health" -TimeoutSec 5 -UseBasicParsing } catch { $health = $null }
-                        Write-Host ("health: " + $(if ($health) { $health.status } else { 'not reachable yet' }))
-                    } until (($health -and $health.status -eq 'UP') -or (Get-Date) -gt $deadline)
-                    if (-not $health -or $health.status -ne 'UP') { throw "Application did not become healthy at $base" }
+                        try { $deployed = [DateTimeOffset](Invoke-RestMethod "$base/actuator/info" -TimeoutSec 5 -UseBasicParsing).build.time } catch { $deployed = $null }
+                        Write-Host ("deployed build: " + $(if ($deployed) { $deployed.ToString('o') } else { 'not reachable yet' }))
+                    } until ($deployed -eq $expected -or (Get-Date) -gt $deadline)
+                    if ($deployed -ne $expected) { throw "The new build did not come up at $base" }
+
+                    $health = Invoke-RestMethod "$base/actuator/health" -TimeoutSec 10 -UseBasicParsing
+                    Write-Host "health: $($health.status)"
+                    if ($health.status -ne 'UP') { throw "Application is not healthy at $base" }
 
                     $info = Invoke-RestMethod "$base/api/info" -UseBasicParsing
                     Write-Host "Running version $($info.version) in environment '$($info.environment)'"

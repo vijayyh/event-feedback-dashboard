@@ -1,0 +1,34 @@
+# 2026-10-18 14:43:29 IST ansible-playbook health.yml (ansible-core 2.16.3, control node LAPTOP-L9RJD6BM)
+
+PLAY [Health check of Event Feedback Dashboard servers] ************************
+
+TASK [Service state] ***********************************************************
+ok: [efd-node-1]
+
+TASK [Listening ports] *********************************************************
+ok: [efd-node-1]
+
+TASK [Health endpoint] *********************************************************
+ok: [efd-node-1]
+
+TASK [Build information] *******************************************************
+ok: [efd-node-1]
+
+TASK [Application information] *************************************************
+ok: [efd-node-1]
+
+TASK [Active release] **********************************************************
+ok: [efd-node-1]
+
+TASK [Result] ******************************************************************
+ok: [efd-node-1] => 
+    msg:
+    - 'service efd: active'
+    - 'listening: *:8095, 0.0.0.0:22, [::]:22'
+    - 'health: UP (db UP, disk UP)'
+    - 'release: build-11 = 1.0.0-SNAPSHOT built 2026-10-18T08:34:07.736Z'
+    - 'environment: node, Java 21.0.12.1'
+
+PLAY RECAP *********************************************************************
+efd-node-1                 : ok=7    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

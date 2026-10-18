@@ -1,0 +1,42 @@
+# 2026-10-18 14:46:51 IST ansible-playbook rollback.yml (ansible-core 2.16.3, control node LAPTOP-L9RJD6BM)
+
+PLAY [Roll back the Event Feedback Dashboard] **********************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [efd-node-1]
+
+TASK [Read the active release] *************************************************
+ok: [efd-node-1]
+
+TASK [Read the previous release] ***********************************************
+ok: [efd-node-1]
+
+TASK [Choose the release to go back to] ****************************************
+ok: [efd-node-1]
+
+TASK [Check that the release exists] *******************************************
+ok: [efd-node-1]
+
+TASK [Switch current from build-13 to build-11] ********************************
+changed: [efd-node-1]
+
+TASK [Remember build-13 as the previous release] *******************************
+changed: [efd-node-1]
+
+TASK [Restart the service] *****************************************************
+changed: [efd-node-1]
+
+TASK [Health check] ************************************************************
+FAILED - RETRYING: [efd-node-1]: Health check (24 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check (23 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check (22 retries left).
+FAILED - RETRYING: [efd-node-1]: Health check (21 retries left).
+ok: [efd-node-1]
+
+TASK [Result] ******************************************************************
+ok: [efd-node-1] => 
+    msg: 'efd-node-1 runs build-11 again (was build-13): health UP'
+
+PLAY RECAP *********************************************************************
+efd-node-1                 : ok=10   changed=3    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

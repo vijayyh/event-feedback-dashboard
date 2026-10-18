@@ -1,0 +1,18 @@
+# 2026-10-18 14:46:49 IST - why release build-13-bad-db failed: application log on efd-node-1
+PS> docker exec efd-node-1 sh -c "cat /opt/efd/releases/build-13-bad-db/release.properties; grep -m3 -E 'db.invalid|UnknownHost|APPLICATION FAILED' /var/log/efd/efd.log"
+# Ansible managed
+# Settings that ship with release build-13-bad-db (Spring Boot properties, empty for a normal release)
+spring.datasource.url=jdbc:h2:tcp://db.invalid:9092/efd
+--- /var/log/efd/efd.log:
+2026-10-18T09:15:16.702Z ERROR 5080 --- [event-feedback-dashboard] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : Connection is broken: "java.net.UnknownHostException: db.invalid: Name or service not known: db.invalid:9092" [90067-232]
+org.hibernate.exception.GenericJDBCException: unable to obtain isolated JDBC connection [Connection is broken: "java.net.UnknownHostException: db.invalid: Name or service not known: db.invalid:9092" [90067-232]] [n/a]
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Connection is broken: "java.net.UnknownHostException: db.invalid: Name or service not known: db.invalid:9092" [90067-232]
+Caused by: java.net.UnknownHostException: db.invalid: Name or service not known
+--- releases on the node:
+build-11
+build-13
+build-13-bad-db
+--- current -> 
+/opt/efd/releases/build-13
+--- previous:
+build-11

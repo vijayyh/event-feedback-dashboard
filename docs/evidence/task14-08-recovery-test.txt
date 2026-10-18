@@ -1,0 +1,33 @@
+# 2026-10-18 14:47:26 IST ansible-playbook recovery-test.yml (ansible-core 2.16.3, control node LAPTOP-L9RJD6BM)
+
+PLAY [Recovery test - the service comes back after a crash] ********************
+
+TASK [Process before the crash] ************************************************
+ok: [efd-node-1]
+
+TASK [Simulate a crash (SIGKILL to the Java process 5634)] *********************
+changed: [efd-node-1]
+
+TASK [The application is down right after the crash] ***************************
+ok: [efd-node-1]
+
+TASK [Wait until systemd has restarted the service and it is healthy again] ****
+FAILED - RETRYING: [efd-node-1]: Wait until systemd has restarted the service and it is healthy again (24 retries left).
+FAILED - RETRYING: [efd-node-1]: Wait until systemd has restarted the service and it is healthy again (23 retries left).
+FAILED - RETRYING: [efd-node-1]: Wait until systemd has restarted the service and it is healthy again (22 retries left).
+FAILED - RETRYING: [efd-node-1]: Wait until systemd has restarted the service and it is healthy again (21 retries left).
+ok: [efd-node-1]
+
+TASK [Process after the recovery] **********************************************
+ok: [efd-node-1]
+
+TASK [Result] ******************************************************************
+ok: [efd-node-1] => 
+    msg:
+    - 'before: PID 5634, restarts 0'
+    - 'right after SIGKILL: HTTP -1 (down)'
+    - 'after:  PID 5803, restarts 1, health UP'
+
+PLAY RECAP *********************************************************************
+efd-node-1                 : ok=6    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

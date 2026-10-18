@@ -1,0 +1,272 @@
+# Task 11 - Docker command log (Windows PowerShell, Docker Desktop 4.95 / Engine 29.8.2), 18-Oct-2026
+# The organiser password is passed with "-e SPRING_SECURITY_USER_PASSWORD" (value taken from the shell environment, never typed).
+
+[13:54:02] PS> docker version --format "Client {{.Client.Version}} / Engine {{.Server.Version}} ({{.Server.Os}}/{{.Server.Arch}})"
+Client 29.8.2 / Engine 29.8.2 (linux/amd64)
+
+[13:54:02] PS> docker build -t event-feedback-dashboard:1.0.0-SNAPSHOT --build-arg VERSION=1.0.0-SNAPSHOT --build-arg REVISION=b94e898 .
+#0 building with "desktop-linux" instance using docker driver
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 30B 0.0s
+#1 transferring dockerfile: 1.97kB 0.0s done
+#1 DONE 0.2s
+#2 [internal] load metadata for docker.io/library/eclipse-temurin:21-jre-alpine
+#2 DONE 4.1s
+#3 [internal] load .dockerignore
+#3 transferring context: 167B 0.0s done
+#3 DONE 0.1s
+#4 [internal] load build context
+#4 transferring context: 11.96MB 4.9s
+#4 ...
+#5 [1/4] FROM docker.io/library/eclipse-temurin:21-jre-alpine@sha256:51ab5e3302e7141ce665ca3ea85e8b5cd648eafbc3c0c90dd79d6537684e4555
+#5 resolve docker.io/library/eclipse-temurin:21-jre-alpine@sha256:51ab5e3302e7141ce665ca3ea85e8b5cd648eafbc3c0c90dd79d6537684e4555 0.1s done
+#5 sha256:b3405c83ad56324f504856a713a1a5d6c28d82a78170a4dd4097c209f8517c18 128B / 128B 0.3s done
+#5 sha256:5abc2579d091ef7359d2654aa76115280a45a0c81c04e644017e6cb1ef45295b 2.46kB / 2.46kB 0.5s done
+#5 sha256:8d3daccf082f0d6dd742c035c3462b3d39cf08cfd1ab9f511c1d592fa15d8d96 16.97MB / 16.97MB 7.2s done
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 16.78MB / 53.26MB 7.2s
+#5 sha256:e2de96513ba9eb53b431787ec8a65cdde380ac4772a3e4c4b714dcfde2a102b5 3.85MB / 3.85MB 3.0s done
+#5 extracting sha256:e2de96513ba9eb53b431787ec8a65cdde380ac4772a3e4c4b714dcfde2a102b5 1.7s done
+#5 extracting sha256:8d3daccf082f0d6dd742c035c3462b3d39cf08cfd1ab9f511c1d592fa15d8d96
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 19.92MB / 53.26MB 7.8s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 23.07MB / 53.26MB 8.6s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 26.21MB / 53.26MB 9.5s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 29.36MB / 53.26MB 10.1s
+#5 extracting sha256:8d3daccf082f0d6dd742c035c3462b3d39cf08cfd1ab9f511c1d592fa15d8d96 2.8s done
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 32.51MB / 53.26MB 10.7s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 35.65MB / 53.26MB 11.3s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 38.80MB / 53.26MB 11.7s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 41.94MB / 53.26MB 12.3s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 45.09MB / 53.26MB 12.8s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 48.23MB / 53.26MB 13.4s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 51.38MB / 53.26MB 13.8s
+#5 sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 53.26MB / 53.26MB 14.2s done
+#5 extracting sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221
+#5 ...
+#4 [internal] load build context
+#4 transferring context: 62.25MB 15.2s done
+#4 DONE 15.2s
+#5 [1/4] FROM docker.io/library/eclipse-temurin:21-jre-alpine@sha256:51ab5e3302e7141ce665ca3ea85e8b5cd648eafbc3c0c90dd79d6537684e4555
+#5 extracting sha256:2242b49db9769393ae8d0d9f9742407ad40a7611accc1c189f0ffac0a0530221 2.3s done
+#5 DONE 17.1s
+#5 [1/4] FROM docker.io/library/eclipse-temurin:21-jre-alpine@sha256:51ab5e3302e7141ce665ca3ea85e8b5cd648eafbc3c0c90dd79d6537684e4555
+#5 extracting sha256:b3405c83ad56324f504856a713a1a5d6c28d82a78170a4dd4097c209f8517c18 0.1s done
+#5 extracting sha256:5abc2579d091ef7359d2654aa76115280a45a0c81c04e644017e6cb1ef45295b 0.1s done
+#5 DONE 17.2s
+#6 [2/4] RUN addgroup -S efd && adduser -S -G efd -h /app efd     && mkdir -p /data && chown efd:efd /data
+#6 DONE 3.3s
+#7 [3/4] WORKDIR /app
+#7 DONE 0.1s
+#8 [4/4] COPY --chown=efd:efd target/event-feedback-dashboard.war app.war
+#8 DONE 1.2s
+#9 exporting to image
+#9 exporting layers
+#9 exporting layers 4.8s done
+#9 exporting manifest sha256:5fe17b0069cdb23bebfa4ac72ad9ae28e7fa52856bcdead8e6db30d75209b803 0.1s done
+#9 exporting config sha256:bb482e65adad8a9d1279ae656e08bf54a28471f9ff0f7185b80b4e49c29b6a1f 0.1s done
+#9 exporting attestation manifest sha256:ab91e1c3c5e909347f7a09fd22a667b2d83387b5c3445b8371480b0af8b3cf8b 0.0s done
+#9 exporting manifest list sha256:00108cd455aac3f3d00e41361bfd5d22d5a3ff4c5976f99f19a3cde1526f0890 0.1s done
+#9 naming to docker.io/library/event-feedback-dashboard:1.0.0-SNAPSHOT done
+#9 unpacking to docker.io/library/event-feedback-dashboard:1.0.0-SNAPSHOT
+#9 unpacking to docker.io/library/event-feedback-dashboard:1.0.0-SNAPSHOT 5.3s done
+#9 DONE 10.5s
+
+[13:54:56] PS> docker tag event-feedback-dashboard:1.0.0-SNAPSHOT event-feedback-dashboard:b94e898
+
+[13:55:03] PS> docker tag event-feedback-dashboard:1.0.0-SNAPSHOT event-feedback-dashboard:latest
+
+[13:55:04] PS> docker images event-feedback-dashboard
+IMAGE                                     ID             DISK USAGE   CONTENT SIZE   EXTRA
+event-feedback-dashboard:1.0.0-SNAPSHOT   00108cd455aa        404MB          130MB        
+event-feedback-dashboard:b94e898          00108cd455aa        404MB          130MB        
+event-feedback-dashboard:latest           00108cd455aa        404MB          130MB        
+
+[13:55:04] PS> docker image inspect event-feedback-dashboard:1.0.0-SNAPSHOT --format "Id: {{.Id}}`nCreated: {{.Created}}`nOs/Arch: {{.Os}}/{{.Architecture}}`nSize: {{.Size}} bytes`nUser: {{.Config.User}}`nWorkingDir: {{.Config.WorkingDir}}`nExposedPorts: {{json .Config.ExposedPorts}}`nVolumes: {{json .Config.Volumes}}`nEntrypoint: {{json .Config.Entrypoint}}`nEnv: {{json .Config.Env}}`nHealthcheck: {{json .Config.Healthcheck}}`nLabels: {{json .Config.Labels}}"
+Id: sha256:00108cd455aac3f3d00e41361bfd5d22d5a3ff4c5976f99f19a3cde1526f0890
+Created: 2026-10-18T08:24:31.608086614Z
+Os/Arch: linux/amd64
+Size: 403892388 bytes
+User: efd
+WorkingDir: /app
+ExposedPorts: {"8080/tcp":{}}
+Volumes: {"/data":{}}
+Entrypoint: ["java","-jar","/app/app.war"]
+Env: ["PATH=/opt/java/openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","JAVA_HOME=/opt/java/openjdk","LANG=en_US.UTF-8","LANGUAGE=en_US:en","LC_ALL=en_US.UTF-8","JAVA_VERSION=jdk-21.0.12.1+1","SERVER_PORT=8080","APP_ENVIRONMENT=docker","APP_DATA_DIR=/data","JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"]
+Healthcheck: {"Interval":15000000000,"Retries":3,"StartPeriod":90000000000,"Test":["CMD-SHELL","wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1"],"Timeout":5000000000}
+Labels: {"org.opencontainers.image.description":"Collects event feedback, shows ratings, indicators and alerts","org.opencontainers.image.revision":"b94e898","org.opencontainers.image.source":"https://github.com/vijayyh/event-feedback-dashboard","org.opencontainers.image.title":"Event Feedback Dashboard","org.opencontainers.image.version":"1.0.0-SNAPSHOT"}
+
+[13:55:07] PS> docker history event-feedback-dashboard:1.0.0-SNAPSHOT --format "table {{.CreatedBy}}\t{{.Size}}"
+CREATED BY                                      SIZE
+ENTRYPOINT ["java" "-jar" "/app/app.war"]       0B
+HEALTHCHECK {Test:[CMD-SHELL wget -qO- http:…   0B
+VOLUME [/data]                                  0B
+EXPOSE [8080/tcp]                               0B
+ENV SERVER_PORT=8080 APP_ENVIRONMENT=docker …   0B
+USER efd                                        0B
+COPY --chown=efd:efd target/event-feedback-d…   62.2MB
+WORKDIR /app                                    4.1kB
+RUN |2 VERSION=1.0.0-SNAPSHOT REVISION=b94e8…   41kB
+LABEL org.opencontainers.image.title=Event F…   0B
+ARG REVISION=b94e898                            0B
+ARG VERSION=1.0.0-SNAPSHOT                      0B
+ENTRYPOINT ["/__cacert_entrypoint.sh"]          0B
+COPY --chmod=755 entrypoint.sh /__cacert_ent…   12.3kB
+RUN /bin/sh -c set -eux;     echo "Verifying…   12.3kB
+RUN /bin/sh -c set -eux;     ARCH="$(apk --p…   165MB
+ENV JAVA_VERSION=jdk-21.0.12.1+1                0B
+RUN /bin/sh -c set -eux;     apk add --no-ca…   37.9MB
+ENV LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_AL…   0B
+ENV PATH=/opt/java/openjdk/bin:/usr/local/sb…   0B
+ENV JAVA_HOME=/opt/java/openjdk                 0B
+CMD ["/bin/sh"]                                 0B
+ADD alpine-minirootfs-3.24.2-x86_64.tar.gz /…   9.08MB
+
+[13:55:20] PS> docker volume create efd-data
+efd-data
+
+[13:55:20] PS> docker run -d --name efd-demo -p 8088:8080 --memory 512m -e SPRING_SECURITY_USER_PASSWORD -v efd-data:/data event-feedback-dashboard:1.0.0-SNAPSHOT
+fc44fa4f2fc9be41e9d2eea3532f2a4bac02f1181368eff9a0f5cd8749ebbe6a
+
+[13:55:25] PS> docker ps --filter name=efd-demo --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+NAMES      IMAGE                                     STATUS                            PORTS
+efd-demo   event-feedback-dashboard:1.0.0-SNAPSHOT   Up 2 seconds (health: starting)   0.0.0.0:8088->8080/tcp, [::]:8088->8080/tcp
+
+[13:55:51] PS> docker ps --filter name=efd-demo --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+NAMES      IMAGE                                     STATUS                    PORTS
+efd-demo   event-feedback-dashboard:1.0.0-SNAPSHOT   Up 28 seconds (healthy)   0.0.0.0:8088->8080/tcp, [::]:8088->8080/tcp
+
+[13:55:51] PS> docker inspect efd-demo --format "State={{.State.Status}} Health={{.State.Health.Status}} StartedAt={{.State.StartedAt}} RestartCount={{.RestartCount}}`nPorts={{json .NetworkSettings.Ports}}`nMounts={{range .Mounts}}{{.Type}} {{.Name}} -> {{.Destination}}{{end}}`nMemoryLimit={{.HostConfig.Memory}}"
+State=running Health=healthy StartedAt=2026-10-18T08:25:22.720620232Z RestartCount=0
+Ports={"8080/tcp":[{"HostIp":"0.0.0.0","HostPort":"8088"},{"HostIp":"::","HostPort":"8088"}]}
+Mounts=volume efd-data -> /data
+MemoryLimit=536870912
+
+[13:56:01] PS> curl.exe -s http://localhost:8088/api/info
+{"name":"Event Feedback Dashboard","version":"1.0.0-SNAPSHOT","environment":"docker","javaVersion":"21.0.12.1","serverTime":"2026-10-18T08:26:01.267978071Z"}
+
+[13:56:01] PS> curl.exe -s http://localhost:8088/actuator/health
+{"status":"UP","components":{"db":{"status":"UP","details":{"database":"H2","validationQuery":"isValid()"}},"diskSpace":{"status":"UP","details":{"total":1081101176832,"free":1023775543296,"threshold":10485760,"path":"/app/.","exists":true}},"ping":{"status":"UP"},"ssl":{"status":"UP","details":{"validChains":[],"invalidChains":[]}}}}
+
+[13:56:01] PS> curl.exe -s -o NUL -w "home page: HTTP %{http_code}, %{content_type}" http://localhost:8088/
+home page: HTTP 200, text/html;charset=UTF-8
+
+[13:56:01] PS> docker logs efd-demo --tail 12
+2026-10-18T08:25:39.826Z  INFO 1 --- [event-feedback-dashboard] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-18T08:25:40.692Z  INFO 1 --- [event-feedback-dashboard] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-18T08:25:42.920Z  INFO 1 --- [event-feedback-dashboard] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-10-18T08:25:43.171Z  INFO 1 --- [event-feedback-dashboard] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-10-18T08:25:43.689Z  INFO 1 --- [event-feedback-dashboard] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-10-18T08:25:45.022Z  INFO 1 --- [event-feedback-dashboard] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-10-18T08:25:45.115Z  INFO 1 --- [event-feedback-dashboard] [           main] c.e.EventFeedbackDashboardApplication    : Started EventFeedbackDashboardApplication in 18.896 seconds (process running for 20.829)
+2026-10-18T08:25:45.852Z  INFO 1 --- [event-feedback-dashboard] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-18T08:25:45.853Z  INFO 1 --- [event-feedback-dashboard] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-18T08:25:45.862Z  INFO 1 --- [event-feedback-dashboard] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-10-18T08:25:46.207Z  INFO 1 --- [event-feedback-dashboard] [           main] c.eventfeedback.config.DemoDataSeeder    : Seeded demo data: 5 events, 9 feedback entries
+2026-10-18T08:25:46.601Z  INFO 1 --- [event-feedback-dashboard] [           main] com.eventfeedback.alert.AlertBackfill    : Alert backfill: evaluated existing feedback, raised 4 alerts
+
+[13:56:01] PS> docker logs efd-demo 2>&1 | Select-String "Tomcat started|Started EventFeedbackDashboardApplication|Seeded|demo data"
+2026-10-18T08:25:45.022Z  INFO 1 --- [event-feedback-dashboard] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-10-18T08:25:45.115Z  INFO 1 --- [event-feedback-dashboard] [           main] c.e.EventFeedbackDashboardApplication    : Started EventFeedbackDashboardApplication in 18.896 seconds (process running for 20.829)
+2026-10-18T08:25:46.207Z  INFO 1 --- [event-feedback-dashboard] [           main] c.eventfeedback.config.DemoDataSeeder    : Seeded demo data: 5 events, 9 feedback entries
+
+[13:56:01] PS> docker stats efd-demo --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}\t{{.PIDs}}"
+NAME       CPU %     MEM USAGE / LIMIT   MEM %     PIDS
+efd-demo   0.31%     244.7MiB / 512MiB   47.79%    33
+
+[13:56:03] PS> docker exec efd-demo sh -c "id; java -version 2>&1 | head -1; ls -l /data"
+uid=100(efd) gid=101(efd) groups=101(efd)
+Picked up JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError
+total 40
+-rw-r--r-- 1 efd efd 40960 Oct 18 08:25 efd-db.mv.db
+
+[13:56:03] PS> docker top efd-demo
+UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+_rpc                456                 431                 98                  08:25               ?                   00:00:39            java -jar /app/app.war
+
+[13:56:19] PS> (Invoke-RestMethod http://localhost:8088/api/events/3).responseCount
+1
+
+[13:56:19] PS> Invoke-WebRequest http://localhost:8088/ -SessionVariable s -UseBasicParsing | Out-Null; $t = ($s.Cookies.GetCookies('http://localhost:8088') | Where-Object Name -eq 'XSRF-TOKEN').Value; Invoke-RestMethod http://localhost:8088/api/events/3/feedback -Method Post -WebSession $s -Headers @{ 'X-XSRF-TOKEN' = $t } -ContentType 'application/json' -Body '{"overallRating":5,"contentRating":5,"organizationRating":4,"wouldRecommend":true,"comments":"Feedback written in the Docker container (Task 11)","attendeeName":"Docker demo"}' | Select-Object id, overallRating, comments | Format-List
+(feedback saved: HTTP 201 Created)
+
+[13:56:19] PS> (Invoke-RestMethod http://localhost:8088/api/events/3).responseCount
+2
+
+[13:56:50] PS> docker stop efd-demo
+efd-demo
+
+[13:56:51] PS> docker ps -a --filter name=efd-demo --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+NAMES      STATUS                                PORTS
+efd-demo   Exited (143) Less than a second ago   
+
+[13:56:51] PS> docker inspect efd-demo --format "State={{.State.Status}} ExitCode={{.State.ExitCode}} FinishedAt={{.State.FinishedAt}}"
+State=exited ExitCode=143 FinishedAt=2026-10-18T08:26:50.889331849Z
+
+[13:56:52] PS> curl.exe -s -m 5 -o NUL -w "HTTP %{http_code}" http://localhost:8088/actuator/health
+HTTP 000
+
+[13:56:54] PS> docker start efd-demo
+efd-demo
+
+[13:57:21] PS> docker ps --filter name=efd-demo --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+NAMES      STATUS                    PORTS
+efd-demo   Up 26 seconds (healthy)   0.0.0.0:8088->8080/tcp, [::]:8088->8080/tcp
+
+[13:57:21] PS> (Invoke-RestMethod http://localhost:8088/api/events/3).responseCount
+2
+
+[13:57:23] PS> docker restart efd-demo
+efd-demo
+
+[13:57:50] PS> docker inspect efd-demo --format "State={{.State.Status}} Health={{.State.Health.Status}} StartedAt={{.State.StartedAt}}"
+State=running Health=healthy StartedAt=2026-10-18T08:27:24.16163504Z
+
+[13:57:50] PS> docker logs efd-demo 2>&1 | Select-String "Started EventFeedbackDashboardApplication|Seeded demo data|already contains"
+2026-10-18T08:25:45.115Z  INFO 1 --- [event-feedback-dashboard] [           main] c.e.EventFeedbackDashboardApplication    : Started EventFeedbackDashboardApplication in 18.896 seconds (process running for 20.829)
+2026-10-18T08:25:46.207Z  INFO 1 --- [event-feedback-dashboard] [           main] c.eventfeedback.config.DemoDataSeeder    : Seeded demo data: 5 events, 9 feedback entries
+2026-10-18T08:27:13.606Z  INFO 1 --- [event-feedback-dashboard] [           main] c.e.EventFeedbackDashboardApplication    : Started EventFeedbackDashboardApplication in 17.182 seconds (process running for 18.709)
+2026-10-18T08:27:43.818Z  INFO 1 --- [event-feedback-dashboard] [           main] c.e.EventFeedbackDashboardApplication    : Started EventFeedbackDashboardApplication in 17.424 seconds (process running for 19.389)
+
+[13:58:05] PS> docker stop efd-demo
+efd-demo
+
+[13:58:06] PS> docker rm efd-demo
+efd-demo
+
+[13:58:07] PS> docker ps -a --filter name=efd-demo --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+NAMES     STATUS    PORTS
+
+[13:58:07] PS> docker volume ls --filter name=efd-data
+DRIVER    VOLUME NAME
+local     efd-data
+
+[13:58:07] PS> docker run -d --name efd-demo-2 --restart unless-stopped -p 8088:8080 --memory 512m -e SPRING_SECURITY_USER_PASSWORD -v efd-data:/data event-feedback-dashboard:1.0.0-SNAPSHOT
+4d2bfffb0ecd026511725f1828ab6133d8bac88dbecd68f89185c0be6dd3ae58
+
+[13:58:35] PS> docker ps --filter name=efd-demo --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+NAMES        STATUS                    PORTS
+efd-demo-2   Up 27 seconds (healthy)   0.0.0.0:8088->8080/tcp, [::]:8088->8080/tcp
+
+[13:58:35] PS> (Invoke-RestMethod http://localhost:8088/api/events/3).responseCount
+2
+
+[13:58:37] PS> ((Invoke-RestMethod http://localhost:8088/api/events/3/feedback) | Where-Object attendeeName -eq "Docker demo").comments
+Feedback written in the Docker container (Task 11)
+
+[13:58:37] PS> docker inspect efd-demo-2 --format "RestartPolicy={{.HostConfig.RestartPolicy.Name}}"
+RestartPolicy=unless-stopped
+
+[13:58:37] PS> docker rm -f efd-demo-2
+efd-demo-2
+
+[13:58:38] PS> docker volume rm efd-data
+efd-data
+
+[13:58:38] PS> docker ps -a --filter name=efd-demo --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+NAMES     STATUS    PORTS
+
+[13:58:38] PS> docker images event-feedback-dashboard --format "table {{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.CreatedSince}}"
+REPOSITORY:TAG                            IMAGE ID       CREATED
+event-feedback-dashboard:1.0.0-SNAPSHOT   00108cd455aa   4 minutes ago
+event-feedback-dashboard:b94e898          00108cd455aa   4 minutes ago
+event-feedback-dashboard:latest           00108cd455aa   4 minutes ago
+
